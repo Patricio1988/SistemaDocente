@@ -1,0 +1,128 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <h:head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <script type="text/javascript" src="/SistemaAdocente1/resources/js/utils.js"/>
+        <h:outputStylesheet name="./css/default.css"/>
+        <h:outputStylesheet name="./css/cssLayout.css"/>
+
+
+        <ui:insert name="Titulo"><title></title></ui:insert>
+    </h:head>
+
+    <h:body >
+
+        <div id="top">
+            <h:panelGrid columns="2">
+                <h:graphicImage value="/imagenes/uce1.png" style="padding-left: 20px"/>
+
+                <h2>UNIVERSIDAD CENTRAL DEL ECUADOR</h2>
+                <h3>FACULTAD DE CIENCIAS MÉDICAS</h3>               
+            </h:panelGrid>  
+
+        </div>
+
+        <div id="content" class="center_content">
+            <p:growl id="growl" autoUpdate="true" showDetail="true" sticky="false" />
+            <h:form>  
+                <div id="divSesionUsuario">
+                    <span>
+                        <b>Sesión Iniciada por:  </b>
+                        <p:outputLabel  value="#{datosControlador.nombre}"/>
+                        <br/>
+
+                        <b>Rol:  </b>
+                        <p:outputLabel value="#{datosControlador.rol}"/>
+                        <br/>
+                        <b>Período:  </b>
+                        <p:outputLabel value="#{selecionPeriodo.nombrePeriodo}"/>
+
+                    </span>
+                </div>
+
+
+
+                <p:menubar>
+                    <p:submenu label="Inicio"  icon="ui-icon-home">
+                        <p:menuitem value="Bienvenida" url="/inicio/inicio.xhtml" icon="ui-icon-document" />
+                         <p:menuitem value="Selección Período" url="/inicio/seleccionarPeriodo.xhtml" icon="ui-icon-document" />
+                    </p:submenu>
+
+                    
+                    <p:submenu label="General" icon="ui-icon-grip-dotted-vertical" >   
+                        <p:submenu label="Usuario" icon="ui-icon-person">
+                          <p:menuitem value="Crear Usuario" url="/superAdministrador/usuario/administracionUsuario.xhtml" icon="ui-icon-gear" update="messages" />
+                        <p:menuitem value="Asignación del Rol" url="/superAdministrador/rol/administracionRol.xhtml" icon="ui-icon-gear" update="messages" />
+                        </p:submenu>                     
+                        <p:menuitem value="Universidad" url="/superAdministrador/universidad/administradorUniversidad.xhtml" icon="ui-icon-arrow-4" />
+                        <p:menuitem value="Facultad" url="/superAdministrador/facultad/administradorFacultad.xhtml" icon="ui-icon-arrowreturnthick-1-w" />
+                         <p:menuitem value="Período" url="/superAdministrador/periodo/administradorPeriodo.xhtml" icon="ui-icon-gear" />
+                        <p:submenu label="Administración de Tablas" icon="ui-icon-wrench" >
+                        <p:menuitem value="Actividad"  url="/superAdministrador/actividad/administracionActividad.xhtml" icon="ui-icon-gear" />
+                        <p:menuitem value="Categoría"  url="/superAdministrador/categoria/administradorCategoria.xhtml" icon="ui-icon-gear" />
+                        <p:menuitem value="IES"  url="/secretaria/ies/administradorIes.xhtml" icon="ui-icon-gear" />
+                        <p:menuitem value="País"  url="/superAdministrador/pais/administradorPais.xhtml" icon="ui-icon-gear" />
+                        <p:menuitem value="Relación Ies"  url="/superAdministrador/relacionIes/administradorRelacionIes.xhtml" icon="ui-icon-gear" />
+                        <p:menuitem value="Tiempo de Dedicación"  url="/superAdministrador/tiempoDedicacion/administradorTiempoDedicacion.xhtml" icon="ui-icon-gear" />
+                        <p:menuitem value="Tipo de Documento"  url="/superAdministrador/tipoDocumento/administarcionTpDocumento.xhtml" icon="ui-icon-gear" />
+                        <p:menuitem value="Tipo de Publicación"  url="/superAdministrador/tipoPublicacion/adiministracionTipoPublicacion.xhtml" icon="ui-icon-gear" />
+                    </p:submenu>                                        
+                    </p:submenu>
+                    <p:submenu label="Carrera" icon="fa fa-fw fa-edit" >
+                        <p:menuitem value="Carrera" url="/administrador/carrera/administradorCarrera.xhtml" icon="ui-icon-radio-off" />  
+                        <p:menuitem value="Malla" url="/administrador/malla/administradorMalla1.xhtml" icon="ui-icon-gear"/>    
+                        <p:menuitem value="Materia" url="/administrador/materia/administradorMateria.xhtml" icon="ui-icon-gear" />                       
+                    </p:submenu>
+
+                    <p:submenu label="Módulo Docente" icon="ui-icon-person">
+                       
+                        <p:menuitem value="Docente Carrera"  url="/secretaria/carreraDocente/carreraDocente.xhtml" icon="ui-icon-document" update="messages"/>
+                        <p:menuitem value="Capacitación" url="/secretaria/capacitacion/crearCapacitacion.xhtml" icon="ui-icon-note" update="messages" ajax="false"/>
+                        <p:menuitem value="Cargo Directivo" url="/secretaria/cargodirectivo/crearCargoDirectivo.xhtml" icon="ui-icon-person" update="messages" ajax="false"/>
+                        <p:menuitem value="Publicaciones" url="/secretaria/publicaciones/publicacionesCrear.xhtml" icon="ui-icon-bookmark" update="messages" ajax="false"/>
+                        <p:menuitem value="Formación" url="/secretaria/formacion/formacionCrear.xhtml" icon="ui-icon-image" update="messages" ajax="false"/>
+                        <p:menuitem value="Relación Laboral" url="/secretaria/relacionLaboral/crearRelacionLaboral.xhtml" icon="ui-icon-lightbulb" update="messages" ajax="false"/>
+                        <p:menuitem value="Carga Horaría" url="/secretaria/cargaHoraria/administradorDocenteContratoMateria_1.xhtml" icon="ui-icon-lightbulb" update="messages" ajax="false"/> 
+                    </p:submenu>
+
+                
+                        <p:submenu label="Carga de Evidencias" icon="ui-icon-wrench" >
+                              <p:menuitem value="Malla"  url="/secretaria/cargaEvidencia/cargaEvidenciaMalla.xhtml" icon="ui-icon-gear" />
+                        <p:menuitem value="Evidencia Capacitación"  url="/secretaria/cargaEvidencia/cargaEvidenciaCapacitacion.xhtml" icon="ui-icon-gear" />
+                        <p:menuitem value="Evidencia Cargo Directivo"  url="/secretaria/cargaEvidencia/cargaEvidenciaCargoDirectivo.xhtml" icon="ui-icon-gear" />
+                        <p:menuitem value="Evidencia Formación"  url="/secretaria/cargaEvidencia/cargaEvidenciaFormacion.xhtml" icon="ui-icon-gear" />
+                        <p:menuitem value="Evidencia Publicación"  url="/secretaria/cargaEvidencia/cargaEvidenciaPublicacion.xhtml" icon="ui-icon-gear" />
+                         <p:menuitem value="Evidencia Relación Laboral"  url="/secretaria/cargaEvidencia/cargaEvidenciaReLaboral.xhtml" icon="ui-icon-gear" />
+
+                    </p:submenu>
+
+                    <p:submenu label="Reportes" >  
+                        <p:menuitem value="Reportes Docente"  url="/secretaria/reportes/reportesDocente1.xhtml" icon="ui-icon-gear" /> 
+                    </p:submenu>
+
+                    <p:submenu label="Seguridad" >                     
+                        <p:menuitem value="Cambio de clave" url="/secretaria/cambiarClave/modificarClave.xhtml" icon="ui-icon-locked" update="messages" />
+                    </p:submenu>
+
+                    <p:submenu label="Salir" >
+                        <p:menuitem value="Salir" url="/logout" style="font-weight: bold; font-size: 14px; color: red;"/>
+                    </p:submenu>
+
+
+                </p:menubar>
+            </h:form>
+            <ui:insert name="content"></ui:insert>
+        </div>
+
+
+
+    </h:body>
+
+</html>

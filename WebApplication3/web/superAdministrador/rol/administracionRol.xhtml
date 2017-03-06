@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+
+        <ui:define name="content">
+            <h:form>
+
+                <p:commandButton value="Nuevo" oncomplete="PF('DialogoAgregarRol').show()"/>
+            </h:form>
+            <h:form id="form">
+
+                <p:panel header="ROLES DE USUARIO">
+
+                    <p:dataTable  widgetVar="BUSCAR" id="tablaRol" value="#{authoritiesControlador.recuperarTodos()}" var="rolItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Rol" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>
+                        <p:column headerText="Nombres" >
+                            <h:outputText value="#{rolItem.username.apellidoUsuario} #{rolItem.username.nombreUsuario}" />
+                        </p:column>
+                        <p:column headerText="UserName" filterBy="#{rolItem.username.username}">
+                            <h:outputText value="#{rolItem.username.username}" />
+                        </p:column>
+                        <p:column headerText="Rol" filterBy="#{rolItem.authority}">
+                            <h:outputText value="#{rolItem.authority}" />
+                        </p:column> 
+                        <p:column headerText="CI:" filterBy="#{rolItem.username.ci}">
+                            <h:outputText value="#{rolItem.username.ci}" />
+                        </p:column> 
+
+
+                        <p:column headerText="ACCIONES">
+                            <p:commandButton  action="#{authoritiesControlador.encontrarRol(rolItem.idRol)}" update=":form:pefilItemDetail" oncomplete="PF('dlgRolVer').show()" icon="ui-icon-search" title="View"/>
+                            <p:commandButton  action="#{authoritiesControlador.encontrarRol(rolItem.idRol)}" update=":frmActualizarRol:rolItemDetail" oncomplete="PF('DialogoActualizarRol').show()" icon="ui-icon-pencil" title="Actualizar"/>
+                            <p:commandButton  actionListener="#{authoritiesControlador.eliminar(rolItem)}" update="tablaRol" icon="ui-icon-circle-close" title="Eliminar">
+                                <p:confirm header="Eliminar" message="Esta Seguro?" icon="ui-icon-alert" />
+                            </p:commandButton> 
+
+                        </p:column>
+
+                    </p:dataTable>
+                    <p:dialog header="Información" widgetVar="dlgRolVer" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                        <p:outputPanel id="pefilItemDetail" style="text-align:center;" >
+                            <p:panelGrid rendered="#{not empty authoritiesControlador.authorities}" columnClasses="label,value" columns="2" >
+                                <p:outputLabel value="Nombres:"/>
+                                <p:outputLabel  value="#{authoritiesControlador.authorities.username.nombreUsuario}" />
+                                <p:outputLabel value="Apellido:"/>
+                                <p:outputLabel  value="#{authoritiesControlador.authorities.username.apellidoUsuario}" />
+
+                                <p:outputLabel value="Ci:"/>
+                                <p:outputLabel  value="#{authoritiesControlador.authorities.username.ci}" />
+                                <p:outputLabel value="UserName:"/>
+                                <p:outputLabel value="#{authoritiesControlador.authorities.username.username}"/>
+                                <p:outputLabel value="Rol:"/>
+                                <p:outputLabel value="#{authoritiesControlador.authorities.authority}"/>
+
+                            </p:panelGrid>
+                        </p:outputPanel>
+                    </p:dialog>
+
+
+                 
+                </p:panel>
+            </h:form>
+            <!-- Agregar datos Rol-->
+            <p:dialog header="Agregar Datos Rol" widgetVar="DialogoAgregarRol" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                <h:form>
+
+                    <p:panelGrid id="panelagregarRol" columns="2" >
+
+                        <h:panelGroup>
+                            <p:outputLabel value="Nombre del Rol:" for="comboOpcion" style="font-weight: bold"/>
+                            <p:message for="comboOpcion"/>
+                            <p:selectOneMenu  id="comboOpcion" value="#{authoritiesControlador.authorities.authority}" required="true" requiredMessage="Escoja un Rol" >
+
+                                <f:selectItem itemLabel="Seleccione una Opción" itemValue="#{null}" />
+                                <f:selectItem itemLabel="SUPERADMINISTRADOR" itemValue="ROLE_SUPERADMINISTRADOR" />
+                                <f:selectItem itemLabel="ADMINISTRADOR" itemValue="ROLE_ADMINISTRADOR" />
+                                <f:selectItem itemLabel="SECRETARIA" itemValue="ROLE_SECRETARIA" />
+
+                            </p:selectOneMenu>
+                        </h:panelGroup>
+                        <h:panelGroup >
+                            <p:outputLabel value="Ingrese la cedula del Usuario:" for="txtcedula" style="font-weight: bold"/>
+                            <p:inputText id="txtcedula" value="#{authoritiesControlador.cedula}" required="true" requiredMessage="La CI del Usuario es un campo obligatorio" >
+                                <p:message for="txtcedula"/>
+                            </p:inputText>
+                            <p:commandButton icon="ui-icon-search" action="#{authoritiesControlador.encontrarUsuario()}" update="txtdatos,txtusername">
+                            </p:commandButton>
+                        </h:panelGroup>
+
+                        <p:outputLabel value="Datos del Usuario" style="font-weight: bold"/>
+                        <p:outputLabel id="txtdatos" value="#{authoritiesControlador.usuario.apellidoUsuario} #{authoritiesControlador.usuario.nombreUsuario}"/>
+                        <p:outputLabel value="Username:" style="font-weight: bold"/>
+                        <p:outputLabel id="txtusername" value="#{authoritiesControlador.usuario.username}"/>
+
+
+                    </p:panelGrid>
+                    <p:commandButton value="Agregar" action="#{authoritiesControlador.crear()}"  update="panelagregarRol form:tablaRol" />
+                    <p:commandButton value="Cerrar" update="panelagregarRol" process="@this" actionListener="#{authoritiesControlador.cerrar()}" oncomplete="PF('DialogoAgregarRol').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelagregarRol" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+            <!-- Actualizar datos Rol-->
+            <p:dialog header="Actualizar Datos Rol" widgetVar="DialogoActualizarRol" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                <h:form id="frmActualizarRol">
+                    <p:outputPanel id="rolItemDetail" style="text-align:center;">
+
+                        <p:panelGrid id="panelactualizarRol" columns="2" >                     
+                            <p:outputLabel value="Cedula:" style="font-weight: bold"/>
+                            <p:outputLabel id="txtcedula" value="#{authoritiesControlador.authorities.username.ci}"  >
+
+                            </p:outputLabel>                              
+                            <p:outputLabel value="Datos del Usuario" style="font-weight: bold"/>
+                            <p:outputLabel id="txtdatos" value="#{authoritiesControlador.authorities.username.apellidoUsuario} #{authoritiesControlador.authorities.username.nombreUsuario}"/>
+                            <p:outputLabel value="Username:" style="font-weight: bold"/>
+                            <p:outputLabel id="txtusername" value="#{authoritiesControlador.authorities.username.username}"/>
+                            <h:panelGroup>
+                                <p:outputLabel value="Nombre del Rol:" for="comboOpcion" style="font-weight: bold"/>
+                                <p:message for="comboOpcion"/>
+                                <p:selectOneMenu  id="comboOpcion" value="#{authoritiesControlador.authorities.authority}" required="true" requiredMessage="Escoja un Rol" >
+
+                                    <f:selectItem itemLabel="Seleccione una Opción" itemValue="#{null}" />
+                                    <f:selectItem itemLabel="SUPERADMINISTRADOR" itemValue="ROLE_SUPERADMINISTRADOR" />
+                                    <f:selectItem itemLabel="ADMINISTRADOR" itemValue="ROLE_ADMINISTRADOR" />
+                                    <f:selectItem itemLabel="SECRETARIA" itemValue="ROLE_SECRETARIA" />
+                                </p:selectOneMenu>
+                            </h:panelGroup>
+                        </p:panelGrid>
+                    </p:outputPanel>
+                    <p:commandButton value="Actualizar" action="#{authoritiesControlador.actualizar()}"  update="panelactualizarRol form:tablaRol" />
+                    <p:commandButton value="Cerrar" update="panelactualizarRol" process="@this" actionListener="#{authoritiesControlador.cerrar()}" oncomplete="PF('DialogoActualizarRol').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelagregarRol" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+
+        </ui:define>
+    </ui:composition>
+</html>

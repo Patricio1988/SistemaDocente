@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+        <ui:define name="content">
+            <script type="text/javascript">
+                function start() {
+                    PF('statusDialog').show();
+                }
+                function error() {
+                    alert('Error al  general el reporte')
+                }
+                var myVar;
+
+                function loadTime()
+                {
+                    myVar = setTimeout(function () {
+                        PF('statusDialog').hide()
+                    }, 10000);
+                }
+                function resetTime()
+                {
+                    clearTimeout(myVar);
+                }
+            </script>
+
+            <h:form id="frmReporte">
+                <center>
+                    <p:fieldset  legend="REPORTES">
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="ESCOGER EL TIPO DE REPORTE:" style="font-weight: bold" for="comboOpcion"/>
+                            <p:selectOneMenu  id="comboOpcion" value="#{reporteGeneralControlador1.opcionReporte}" >
+
+                                <f:selectItem itemLabel="Seleccione una Opción" itemValue="0" />
+                                <f:selectItem itemLabel="Reporte Docentes" itemValue="1" />
+                                <f:selectItem itemLabel="Reporte Capacitación" itemValue="2" />
+                                <f:selectItem itemLabel="Reporte Cargo Directivo" itemValue="3" />
+                                <f:selectItem itemLabel="Reporte Publicaciones" itemValue="4" />
+                                <f:selectItem itemLabel="Reporte Formación" itemValue="5" />
+                                <f:selectItem itemLabel="Reporte Relación Laboral" itemValue="6" />
+                                <f:selectItem itemLabel="Reporte por Actividad" itemValue="7" />
+                                <f:selectItem itemLabel="Reporte Carga Horaria" itemValue="8" />
+                                <p:ajax event="change" listener="#{reporteGeneralControlador1.getCombo}" update="comboCarrera,idfecha,comboPeriodo,comboActividad"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel for="comboCarrera" value="CARRERA : " style=" font-weight: bold"  rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}"/>
+                            <p:selectOneMenu id="comboCarrera" disabled="#{reporteGeneralControlador1.estadoComboCarrera}" value="#{reporteGeneralControlador1.idCarrera}" required="true" requiredMessage="Seleccione una Carrera" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}">
+                                <f:selectItem itemLabel="Seleccione" itemValue="#{null}" />
+                                <f:selectItems value="#{carreraControlador.recuperarTodos()}" var="itemcarrera" itemValue="#{itemcarrera.idCarrera}" itemLabel="#{itemcarrera.nomCarrera}"/>
+
+                            </p:selectOneMenu>
+                            <p:outputLabel value="FECHA DE INICIO DE EVENTO : " style=" font-weight: bold" for="idfecha" />
+                            <p:calendar id="idfecha" disabled="#{reporteGeneralControlador1.estadofecha}" value="#{reporteGeneralControlador1.fechainicio}"  navigator="true" showOn="button"  pattern="dd/MM/yyyy"  required="true" requiredMessage="Seleccione una fecha">
+                            </p:calendar>
+                            <p:outputLabel value="PERÍODO : " style=" font-weight: bold" for="comboPeriodo"/>
+                            <p:selectOneMenu id="comboPeriodo" disabled="#{reporteGeneralControlador1.estadoComboPeriodo}" value="#{reporteGeneralControlador1.idPeriodo}" required="true" requiredMessage="Seleccione un Periodo">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                <f:selectItems value="#{periodoControlador.listaPeridosActivos()}" var="itemPeriodo" itemValue="#{itemPeriodo.idPeriodo}" itemLabel="#{itemPeriodo.nombrePeriodo}"/>
+                            </p:selectOneMenu> 
+                            <p:outputLabel value="ACTIVIDAD : " style=" font-weight: bold" for="comboActividad"/>
+                            <p:selectOneMenu id="comboActividad" disabled="#{reporteGeneralControlador1.estadoComboActividad}" value="#{reporteGeneralControlador1.idActividad}" required="true" requiredMessage="Seleccione un Tipo de Actividad">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                <f:selectItems value="#{actividadControlador.recuperarTodos()}" var="itemActividad" itemValue="#{itemActividad.idActivida}" itemLabel="#{itemActividad.nomActividad}"/>
+                            </p:selectOneMenu> 
+                            <p:outputLabel value="DESCARGAR ARCHIVO : " style=" font-weight: bold"/>
+                            <p:commandLink   id="btnReporte6" 
+                                             title="DESCARGA ECXEL"  
+                                             onclick="start();" onerror="error();"
+                                             ajax="false" 
+                                             actionListener="#{reporteGeneralControlador1.ImprimirXls1(datosControlador.usuario.authorities)}">
+                                <h:graphicImage value="/imagenes/ecxel.jpg" />
+                            </p:commandLink>  
+                        </p:panelGrid>
+
+
+                    </p:fieldset>                 
+                </center>
+                <p:dialog modal="true" widgetVar="statusDialog"
+                          onShow="loadTime();" onHide="resetTime();"
+                          header="ESPERE MIENTRAS SE PROCESA EL REPORTE..."
+                          draggable="false" closable="false" resizable="false">
+                    <center>
+                        <h:graphicImage value="/imagenes/cargando.gif" />
+                    </center>
+                </p:dialog>
+            </h:form>
+        </ui:define>
+    </ui:composition>
+
+</html>

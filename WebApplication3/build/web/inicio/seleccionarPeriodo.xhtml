@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </h:head>
+    <h:body>
+        <h:form id="FrmSeleccionaPeriodo">
+            <p:growl id="growl" showDetail="true" sticky="true" />
+            <center>
+                <p:panel header="Selección de un Período" style= "width: 500px">
+
+                    <p:outputLabel value="PERÍODO" style="font-weight:bold" for="selectPeriodo"/>
+                    <p:panelGrid columns="2">
+                        <h:panelGroup>
+                            <p:message for="selectPeriodo"/>
+                            <p:selectOneMenu id="selectPeriodo" value="#{selecionPeriodo.idPeriodo}" required="true" requiredMessage="El período es un campo obligatorio">
+                                <f:selectItem itemLabel="Selecione Uno" itemValue="#{null}" />
+                                <f:selectItems value="#{selecionPeriodo.listaPeriodoSeleccionar(datosControlador.usuario.authorities)}" var="Itemperiodo" itemLabel="#{Itemperiodo.nombrePeriodo}"  itemValue="#{Itemperiodo.idPeriodo}" />
+                            </p:selectOneMenu>                           
+                        </h:panelGroup>  
+                    </p:panelGrid>
+                    <p:commandButton value="Ir"  action="#{selecionPeriodo.accederAInicio()}" update="growl"/>
+                </p:panel>
+            </center>
+        </h:form>
+    </h:body>
+</html>
+

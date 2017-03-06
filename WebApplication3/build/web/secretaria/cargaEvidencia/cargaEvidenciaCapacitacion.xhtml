@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+
+        <ui:define name="content">
+            <p:growl  showDetail="true"  autoUpdate="true" sticky="false" />   
+
+            <p:panel header="Carga Evidencia Capacitación" >
+                <h:form id="frmCargaArchivo">
+                    <p:dataTable  widgetVar="BUSCAR" id="tabladocente1" value="#{carreraDocenteControlador.listarDocenteCarreraVigentes(datosControlador.usuario.authorities,selecionPeriodo.idPeriodo)}" var="docenteItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Docente" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>                            
+                        <p:column headerText="CARRERA:" filterBy="#{docenteItem.idCarrera.nomCarrera}">
+                            <h:outputText value="#{docenteItem.idCarrera.nomCarrera}"/>
+                        </p:column>
+                        <p:column headerText="PRIMER APELLIDO" filterBy="#{docenteItem.idDocente.apellidoPaterno}">
+                            <h:outputText value="#{docenteItem.idDocente.apellidoPaterno}"/>
+                        </p:column>
+                        <p:column headerText="SEGUNDO APELLIDO" filterBy="#{docenteItem.idDocente.apellidoMaterno}">
+                            <h:outputText value="#{docenteItem.idDocente.apellidoMaterno}"/>
+                        </p:column>
+                        <p:column headerText="NOMBRES" filterBy="#{docenteItem.idDocente.nombres}">
+                            <h:outputText value="#{docenteItem.idDocente.nombres}"/>
+                        </p:column>
+                        <p:column headerText="IDENTIFICACIÓN" filterBy="#{docenteItem.idDocente.identificacion}">
+                            <h:outputText value="#{docenteItem.idDocente.identificacion}"/>
+                        </p:column>
+                        <p:column>
+                            <p:commandButton value="SELECCIONAR" action="#{capacitacionControlador.recuperarDocenteCarreraPorId(docenteItem.idDocente.idDocente, docenteItem.idCarrera.idCarrera)}"  update=":frmCargaArchivo:datosdocente1 :frmtablacapac:tablaCapacitacion"/>
+
+                        </p:column>    
+
+                    </p:dataTable>
+                    <!--  Datos del docente-->
+                    <p:panelGrid columns="4" id="datosdocente1" >
+                        <f:facet name="header">
+                            Datos Docente Seleccionado
+                        </f:facet>
+                        <p:outputLabel value="NOMBRE:" style="font-weight:bold"/> 
+                        <p:outputLabel id="apepater" value="#{capacitacionControlador.carreraDocente.idDocente.apellidoPaterno} #{capacitacionControlador.carreraDocente.idDocente.apellidoMaterno} #{capacitacionControlador.carreraDocente.idDocente.nombres}" > </p:outputLabel>                  
+                        <p:outputLabel value="IDENTIFICACIÓN:" style="font-weight:bold"/>
+                        <p:outputLabel id="identifi" value="#{capacitacionControlador.numeroCedula}"/>
+                    </p:panelGrid>                      
+                </h:form>      
+            </p:panel>
+            <p:panel header="Cursos de Capacitación Docente">
+
+                <!--  tabla capacitacion-->
+                <h:form id="frmtablacapac">
+                    <p:dataTable  widgetVar="BUSCARCURSO" id="tablaCapacitacion" value="#{capacitacionControlador.listaCapacitacionDocente()}" var="capacitacionItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50" >
+
+                        <p:column headerText="NOMBRE:" filterBy="#{capacitacionItem.nomEvento}">
+                            <h:outputText value="#{capacitacionItem.nomEvento}"/>
+                        </p:column>
+                        <p:column headerText="INSTITUCIÓN" filterBy="#{capacitacionItem.nomInstitucion}">
+                            <h:outputText value="#{capacitacionItem.nomInstitucion}"/>
+                        </p:column>
+                        <p:column headerText="HORAS" filterBy="#{capacitacionItem.numHoras}">
+                            <h:outputText value="#{capacitacionItem.numHoras}"/>
+                        </p:column>
+                        <p:column headerText="FECHA DE INICIO" filterBy="#{capacitacionItem.fechaInicioEvento}">
+                            <h:outputText value="#{capacitacionItem.fechaInicioEvento}">
+                                <f:convertDateTime pattern="dd-MMM-yyyy" /> 
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="FECHA DE FIN" filterBy="#{capacitacionItem.fechaFinEvento}">
+                            <h:outputText value="#{capacitacionItem.fechaFinEvento}">
+                                <f:convertDateTime pattern="dd-MMM-yyyy" />
+                            </h:outputText>
+                        </p:column>
+                         <p:column headerText="TIPO DE CURSO" filterBy="#{capacitacionItem.tipoCurso}">
+                            <h:outputText value="#{capacitacionItem.tipoCurso}"/>
+                        </p:column>
+                        <p:column headerText="LISTA ARCHIVOS" >
+                            <p:column>
+                                <h:outputText value="#{capacitacionItem.nombreDocCapacitacion}"/>
+                            </p:column>
+                            <p:column>
+                                <h:panelGroup>
+                                    <p:commandButton   ajax="false" actionListener="#{capacitacionControlador.descargarArchivoRepositorio(capacitacionItem.idDocCapacitacion)}" icon="ui-icon-document" title="Descargar" rendered="#{capacitacionItem.nombreDocCapacitacion!=null || capacitacionItem.nombreDocCapacitacion==capacitacionControlador.vacio}">
+                                        <p:fileDownload value="#{capacitacionControlador.file}"/>    
+                                    </p:commandButton>
+                                    <p:commandButton actionListener="#{capacitacionControlador.eliminarArchivoRepositorio(capacitacionItem.idDocCapacitacion,capacitacionItem.idCapacitacion)}" update=":frmtablacapac:tablaCapacitacion" icon="ui-icon-circle-close" rendered="#{capacitacionItem.nombreDocCapacitacion!=null || capacitacionItem.nombreDocCapacitacion==capacitacionControlador.vacio}">
+                                        <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                                    </p:commandButton>
+                                </h:panelGroup>
+                            </p:column>
+                        </p:column>
+
+                        <p:column headerText="ACCIONES" >
+                            <p:commandButton action="#{capacitacionControlador.recuperarCapcitacionporID(capacitacionItem.idCapacitacion)}" update=":dlgDatosSubir" oncomplete="PF('dglSubirArchivo').show()" value="Cargar Archivo" title="Ver"/>
+
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+
+            <p:dialog id="dlgDatosSubir" header="Subir Archivo" widgetVar="dglSubirArchivo" modal="true" showEffect="fade" hideEffect="fade" resizable="false" >
+
+                <h:form enctype="multipart/form-data">
+                    <p:outputPanel id="relacionlaboralDetail" style="text-align:center;">
+                        <p:panelGrid columns="2" id="gridVer">
+
+                            <p:outputLabel value="NOMBRE DEL EVENTO:" style="font-weight:bold"/>
+                            <p:outputLabel  value="#{capacitacionControlador.capacitacion.nomEvento}"/>
+                            <p:outputLabel value="NOMBRE DE LA INSTITUCIÓN DEL EVENTO:" style="font-weight:bold"/>
+                            <p:outputLabel value="#{capacitacionControlador.capacitacion.nomInstitucion}"/>
+
+                            <p:outputLabel value="FECHA DE INICIO DEL EVENTO:" style="font-weight:bold"/>
+
+                            <p:outputLabel  value="#{capacitacionControlador.capacitacion.fechaInicioEvento}"   >
+                                <f:convertDateTime pattern="dd-MM-yyyy"/>
+                            </p:outputLabel>
+                            <p:outputLabel value="FECHA DE FIN DEL EVENTO:" style="font-weight:bold"/>
+
+                            <p:outputLabel value="#{capacitacionControlador.capacitacion.fechaFinEvento}"  >
+                                <f:convertDateTime pattern="dd-MM-yyyy"/>
+                            </p:outputLabel>           
+                            <p:outputLabel value="NÚMERO DE HORAS:" style="font-weight:bold"/>
+                            <p:outputLabel value="#{capacitacionControlador.capacitacion.numHoras}"/>
+
+                            <p:outputLabel value="PAÍS:" style="font-weight:bold"/>
+                            <p:outputLabel value="#{capacitacionControlador.capacitacion.paisActualizacion}"/>
+                            <p:outputLabel value="ARCHIVO:(.pdf)" style="font-weight:bold"/>
+                            <h:panelGroup>
+                                <p:fileUpload  fileUploadListener="#{capacitacionControlador.handleFileUpload}"  update="txtlabael" allowTypes="/(\.|\/)(pdf)$/" sizeLimit="6250000" />
+
+
+                                <p:outputLabel  id="txtlabael" value="#{capacitacionControlador.capacitacion.nombreDocCapacitacion}" style="font-weight:bold"/>
+                                <p:commandButton  value="Cargar"  actionListener="#{capacitacionControlador.subirArchivoRepositorio()}" oncomplete="PF('dglSubirArchivo').hide()"  update=":frmtablacapac:tablaCapacitacion"  icon="ui-icon-disk" />
+                            </h:panelGroup>
+
+                        </p:panelGrid>
+                    </p:outputPanel>
+                </h:form>
+            </p:dialog>
+            <!--  Dialogo confirmacion-->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+
+        </ui:define>
+    </ui:composition>
+</html>
+

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+        <ui:define name="content">
+
+            <center>
+                <p:panel header="Datos Tipo de Publicacion" style= "width: 530px">
+                    <h:form>
+                        <div style="text-align: right">
+                            <p:commandButton value="Nuevo" oncomplete="PF('dialogoTpPubliAgregar').show()" /> 
+                        </div>
+                    </h:form>
+
+                    <h:form id="idformTpPublicacion" >
+
+
+                        <p:dataTable  widgetVar="buscart" id="tablaTpPublicacion" value="#{tipoPublicacionControlador.recuperarTodos()}" var="tppublicacionItem" paginator="true" rows="10"
+                                      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                      rowsPerPageTemplate="5,10,15">
+                            <f:facet name="header">
+                                <p:outputPanel>
+                                    <h:outputText value="Buscar Tipo de publicación" />
+                                    <p:inputText id="globalFilter" onkeyup="PF('buscart').filter()" style="width:300px" placeholder="Enter keyword"/>
+                                </p:outputPanel>
+                            </f:facet>
+
+                            <p:column headerText="NOMBRE" filterBy="#{tppublicacionItem.nomTipoPublicacion}" >
+                                <h:outputText value="#{tppublicacionItem.nomTipoPublicacion}"/>
+                            </p:column>
+                             <p:column headerText="INGRESA MATERIA" style="width: 70px" >
+                                 <h:outputText value="SI" rendered="#{tppublicacionItem.estadoHabilitarRevista==true}"/>
+                            <h:outputText value="NO" rendered="#{tppublicacionItem.estadoHabilitarRevista==false}"/>
+                         
+                            </p:column>
+                            <p:column headerText="ACCIONES" style= "width: 100px">
+                                <p:commandButton  actionListener="#{tipoPublicacionControlador.buscarTpPublicacionID(tppublicacionItem.idTipoPublicacion)}" oncomplete="PF('dialogoTpPubliVer').show()" update=":dldatosVER" icon="ui-icon-search"  /> 
+
+                                <p:commandButton  actionListener="#{tipoPublicacionControlador.buscarTpPublicacionID(tppublicacionItem.idTipoPublicacion)}" oncomplete="PF('dialogoTpPubliActualizar').show()" update=":dldatos" icon="ui-icon-pencil"  />  
+                             <p:commandButton actionListener="#{tipoPublicacionControlador.eliminar(tppublicacionItem)}" update=":idformTpPublicacion:tablaTpPublicacion" icon="ui-icon-circle-close">
+                                    <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                                </p:commandButton>
+                            </p:column>
+                        </p:dataTable>
+
+                    </h:form>
+                </p:panel>
+            </center>
+            <p:dialog header="Ver Datos Tipo Publicación" widgetVar="dialogoTpPubliVer" id="dldatosVER" closable="false" modal="true">
+
+                <h:form>
+                    <p:panelGrid id="gridVer" columns="2">
+                        <p:outputLabel value="CÓDIGO:" style="font-weight: bold"  />
+                        <p:outputLabel value="#{tipoPublicacionControlador.tipoPublicacion.idTipoPublicacion}"/>
+                        <p:outputLabel value="NOMBRE TIPO PUBLICACIÓN" style="font-weight: bold"  />
+                        <p:outputLabel value="#{tipoPublicacionControlador.tipoPublicacion.nomTipoPublicacion}" style="width:300px;height:15px"/>
+                        <p:outputLabel value="HABILITAR NOMBRE REVISTA:" style="font-weight: bold"  />
+                        <p:outputLabel value="#{tipoPublicacionControlador.tipoPublicacion.estadoHabilitarRevista}"/>
+                    </p:panelGrid>
+                    <p:commandButton value="Cerrar" update="gridVer" process="@this" actionListener="#{tipoPublicacionControlador.cerrar()}" oncomplete="PF('dialogoTpPubliVer').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridVer" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog header="Actualizar Datos Tipo Publicación" widgetVar="dialogoTpPubliActualizar" id="dldatos" closable="false" modal="true">
+
+                <h:form>
+                    <p:panelGrid id="gridActualizar" columns="2">
+                        <p:outputLabel value="NOMBRE TIPO PUBLICACIÓN" style="font-weight: bold" for="txtnomtpPubli" />
+                        <p:inputText  id="txtnomtpPubli" value="#{tipoPublicacionControlador.tipoPublicacion.nomTipoPublicacion}" style="width:300px;height:15px">                        
+                            <p:message for="txtnomtpPubli"/>                
+                        </p:inputText>
+                        <p:outputLabel value="HABILITAR NOMBRE REVISTA:" style="font-weight: bold" />
+                        <p:selectBooleanButton id="value1" value="#{tipoPublicacionControlador.tipoPublicacion.estadoHabilitarRevista}" onLabel="SI" offLabel="No" style="width:100px" />
+                    </p:panelGrid>
+                    <p:commandButton value="Actualizar" actionListener="#{tipoPublicacionControlador.actualizar()}"  update="gridActualizar :idformTpPublicacion:tablaTpPublicacion"/>
+                      <p:commandButton value="Cerrar" update="gridActualizar" process="@this" actionListener="#{tipoPublicacionControlador.cerrar()}" oncomplete="PF('dialogoTpPubliActualizar').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridActualizar" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+            <p:dialog header="Agregar Datos Tipo de publicación" widgetVar="dialogoTpPubliAgregar" id="dldatos1" closable="false" modal="true">
+
+                <h:form>
+                    <p:panelGrid  id="panelagregar" columns="2">
+                        <p:outputLabel value="NOMBRE TIPO PUBLICACIÓN" style="font-weight: bold" for="txtnomtpPubli" />
+                        <p:inputText  id="txtnomtpPubli" value="#{tipoPublicacionControlador.tipoPublicacion.nomTipoPublicacion}" style="width:300px;height:15px"> 
+                            <p:message for="txtnomtpPubli"/>                
+                        </p:inputText>
+                        <p:outputLabel value="HABILITAR NOMBRE REVISTA:" style="font-weight: bold" />
+                        <p:selectBooleanButton id="value1" value="#{tipoPublicacionControlador.tipoPublicacion.estadoHabilitarRevista}" onLabel="SI" offLabel="No" style="width:100px" />
+                    </p:panelGrid>
+                    <p:commandButton value="Agregar"  actionListener="#{tipoPublicacionControlador.crear()}" update="panelagregar :idformTpPublicacion:tablaTpPublicacion"/>
+                    <p:commandButton value="Cerrar" update="panelagregar" process="@this" actionListener="#{tipoPublicacionControlador.cerrar()}" oncomplete="PF('dialogoTpPubliAgregar').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelagregar" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+              <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+
+
+
+
+        </ui:define>
+    </ui:composition>
+</html>

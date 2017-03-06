@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+
+        <ui:define name="content">
+            <p:panel header="Administrador Datos de la Facultad">
+                <!-- TABLA CARGO DIRECTIVO-->
+                <h:form>
+
+                    <p:commandButton value="Nuevo" oncomplete="PF('dialogoFacultadAgregar').show()"/>
+                </h:form>
+                <h:form id="frmtablaFacultad">
+                    <p:dataTable  widgetVar="BUSCAR" id="tablaFacultad" value="#{facultadControlador.recuperarTodos()}" var="facuItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Facultad" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>
+                        <p:column headerText="UNIVERSIDAD" filterBy="#{facuItem.idUniversidad.nomUniversidad}">
+                            <h:outputText value="#{facuItem.idUniversidad.nomUniversidad}" />
+                        </p:column>
+                        <p:column headerText="FACULTAD" filterBy="#{facuItem.nomFacultad}">
+                            <h:outputText value="#{facuItem.nomFacultad}" />
+                        </p:column>                      
+                        <p:column headerText="DIRECCIÓN">
+                            <h:outputText value="#{facuItem.direccionFacultad}" />
+                        </p:column>
+                        <p:column headerText="AUTORIDAD">
+                            <h:outputText value="#{facuItem.directorFacultad}" />
+                        </p:column> 
+                        <p:column headerText="TELÉFONO" >
+                            <h:outputText value="#{facuItem.telefono}" />
+                        </p:column> 
+                        <p:column headerText="ACCIONES" >
+                            <p:commandButton action="#{facultadControlador.encontrarFacultaddID(facuItem.idFacultad)}" update=":dialogoFacultadVer" oncomplete="PF('dialogoDatosVer').show()" icon="ui-icon-search" title="Ver"/>
+                            <p:commandButton action="#{facultadControlador.encontrarFacultaddID(facuItem.idFacultad)}" update=":dialogoFacultadActualizar" oncomplete="PF('dialogoDatosActualizar').show()" icon="ui-icon-pencil" title="Actualizar"/>
+                            <p:commandButton actionListener="#{facultadControlador.eliminar(facuItem)}" update=":frmtablaFacultad:tablaFacultad" icon="ui-icon-circle-close">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+            <!-- DIALOGO AGREGAR-->
+
+            <p:dialog id="dialogoFacuAgregar" header="Agregar Datos de la Facultad" widgetVar="dialogoFacultadAgregar" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <h:form>
+                    <p:panelGrid id="panelFacultad" columns="2">
+
+                        <p:outputLabel value="NOMBRE DE LA UNIVERSIDAD: *" style="font-weight: bold"/>
+                        <h:panelGroup>
+                            <p:message for="idUniversidad"/>
+                            <p:selectOneMenu id="idUniversidad" value="#{facultadControlador.idUniversidad}" required="true" requiredMessage="Seleccione una Universidad">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue=" " />
+                                <f:selectItems value="#{facultadControlador.itemsUniversidad}"/>
+                            </p:selectOneMenu> 
+                        </h:panelGroup>
+                        <p:outputLabel value="NOMBRE DE LA FACULTAD: " style="font-weight: bold" for="nomfacu"/>
+                        <p:inputText id="nomfacu" value="#{facultadControlador.facultad.nomFacultad}" style="width: 300px">            
+                            <p:message for="nomfacu"/>
+                        </p:inputText>
+                        <p:outputLabel value="DIRECCIÓN DE LA FACULTAD: "  style="font-weight: bold" for="dirfacu"/>
+
+                        <p:inputText id="dirfacu" value="#{facultadControlador.facultad.direccionFacultad}" style="width: 400px">
+
+                            <p:message for="dirfacu"/>
+                        </p:inputText>
+                       <p:outputLabel value="TELÉFONO: " style="font-weight: bold" for="txttelefono"/>
+                            <p:inputMask id="txttelefono" mask="(99) 9999-999" value="#{facultadControlador.facultad.telefono}"/>
+                        <p:outputLabel value="DIRECTOR DE LA FACULTAD: " style="font-weight: bold" for="directorfacul"/>
+
+
+                        <p:inputText id="directorfacul" value="#{facultadControlador.facultad.directorFacultad}" style="width: 400px">
+
+                        </p:inputText>
+                    </p:panelGrid>
+                    <p:commandButton value="Agregar" id="agregarcargo"  action="#{facultadControlador.crear()}" update="panelFacultad :frmtablaFacultad:tablaFacultad"  icon="ui-icon-disk" />
+                    <p:commandButton value="Cerrar" update="panelFacultad" process="@this" actionListener="#{facultadControlador.cerrar()}" oncomplete="PF('dialogoFacultadAgregar').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelFacultad" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+
+            <!-- DIALOGO ACTUALIZAR-->
+
+            <p:dialog id="dialogoFacultadActualizar" header="Actualizar Datos de la Facultad" widgetVar="dialogoDatosActualizar" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <h:form>
+                
+                        <p:panelGrid  columns="2" id="gridActualizar">
+                            <p:outputLabel value="NOMBRE DE LA UNIVERSIDAD:" for="idUniversidad" style="font-weight: bold"/>
+                            <h:panelGroup>
+                                <p:message for="idUniversidad"/>
+                                <p:selectOneMenu id="idUniversidad" value="#{facultadControlador.idUniversidad}" required="true" requiredMessage="Seleccione una Universidad">
+                                    <f:selectItem itemLabel="SELECCIONE" itemValue=" " />
+                                    <f:selectItems value="#{facultadControlador.itemsUniversidad}"/>
+                                </p:selectOneMenu>                           
+                            </h:panelGroup>
+
+
+                            <p:outputLabel value="NOMBRE DE LA FACULTAD:" style="font-weight: bold" for="nomfacu"/>
+
+                            <p:inputText id="nomfacu" value="#{facultadControlador.facultad.nomFacultad}" style="width: 300px">                            
+                                <p:message for="nomfacu"/>
+                            </p:inputText>
+                            <p:outputLabel value="DIRECCIÓN DE LA FACULTAD: "  style="font-weight: bold" for="dirfacu"/>
+
+                            <p:inputText id="dirfacu" value="#{facultadControlador.facultad.direccionFacultad}" style="width: 400px">
+
+                                <p:message for="dirfacu"/>
+                            </p:inputText>
+                            <p:outputLabel value="TELÉFONO: " style="font-weight: bold" for="txttelefono"/>
+                            <p:inputMask id="txttelefono" mask="(99) 9999-999" value="#{facultadControlador.facultad.telefono}"/>
+                            <p:outputLabel value="DIRECTOR DE LA FACULTAD: " style="font-weight: bold" for="directorfacul"/>
+
+
+                            <p:inputText id="directorfacul" value="#{facultadControlador.facultad.directorFacultad}" style="width: 400px">
+
+                            </p:inputText>
+                        </p:panelGrid>
+                        <p:commandButton value="Actualizar" actionListener="#{facultadControlador.actualizar()}"   update="gridActualizar :frmtablaFacultad:tablaFacultad" icon="ui-icon-pencil"/>
+                        <p:commandButton value="Cerrar" update="gridActualizar" process="@this" actionListener="#{facultadControlador.cerrar()}" oncomplete="PF('dialogoDatosActualizar').hide();" icon="ui-icon-closethick" >
+                            <p:resetInput target="gridActualizar" />
+                        </p:commandButton>
+                   
+                </h:form>
+            </p:dialog>
+            <!-- DIALOGO VER-->
+            <p:dialog id="dialogoFacultadVer" header="Ver Datos de la Facultad" widgetVar="dialogoDatosVer" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <h:form>
+                    <p:outputPanel id="relacionCargoDetail" style="text-align:center;">
+                        <p:panelGrid columns="2" id="gridVer">
+
+
+                            <p:outputLabel value="NOMBRE DE LA UNIVERSIDAD:" style="font-weight: bold"/>
+                            <p:outputLabel id="idUniversidad" value="#{facultadControlador.facultad.idUniversidad.nomUniversidad}"/>
+
+                            <p:outputLabel value="NOMBRE DE LA FACULTAD:" style="font-weight: bold"/>
+                            <p:outputLabel id="nomfacu" value="#{facultadControlador.facultad.nomFacultad}"/>
+                            <p:outputLabel value="DIRECCIÓN DE LA FACULTAD:" style="font-weight: bold"/>
+
+                            <p:outputLabel id="dirfacu" value="#{facultadControlador.facultad.direccionFacultad}" style="height: 300px"/>
+                            <p:outputLabel value="TELÉFONO DE LA FACULTAD:" style="font-weight: bold"/>
+
+                            <p:outputLabel id="txttelefono" value="#{facultadControlador.facultad.telefono}" style="height: 300px"/>
+                            <p:outputLabel value="DIRECTOR DE LA FACULTAD:" style="font-weight: bold"/>
+
+                            <p:outputLabel id="directorfacul" value="#{facultadControlador.facultad.directorFacultad}"/>   
+
+                        </p:panelGrid>
+                         <p:commandButton value="Cerrar" update="gridVer" process="@this" actionListener="#{facultadControlador.cerrar()}" oncomplete="PF('dialogoDatosVer').hide();" icon="ui-icon-closethick" >
+                            <p:resetInput target="gridVer" />
+                        </p:commandButton>
+                    </p:outputPanel>
+                </h:form>
+            </p:dialog>
+            <!-- DIALOGO CONFIRMAR-->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+        </ui:define>
+    </ui:composition>
+</html>

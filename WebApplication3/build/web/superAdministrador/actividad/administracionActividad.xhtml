@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+      
+        <ui:define name="content">
+            <p:growl  showDetail="true"  autoUpdate="true" sticky="false" />   
+            <center>
+            <p:panel header="Administración Datos Actividad" style= "width: 530px">
+            <h:form>
+                <div style="text-align: right">
+                <p:commandButton value="Nuevo" oncomplete="PF('dialogoActividadAgregar').show()" />
+                </div>
+             </h:form>
+            
+            <h:form id="idformActividad"  >
+               
+                    
+                <p:dataTable  widgetVar="buscart" id="tablapais1" value="#{actividadControlador.recuperarTodos()}" var="actividadItem" paginator="true" rows="10"
+                              paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                              rowsPerPageTemplate="5,10,15" >
+                    <f:facet name="header">
+                        <p:outputPanel>                         
+                            <h:outputText value="Buscar Actividad" />
+                            <p:inputText id="globalFilter" onkeyup="PF('buscart').filter()" style="width:200px" placeholder="Enter keyword"/>
+                        </p:outputPanel>
+                    </f:facet>
+                 
+                    <p:column headerText="NOMBRE ACTIVIDAD" filterBy="#{actividadItem.nomActividad}" >
+                        <h:outputText value="#{actividadItem.nomActividad}"/>
+                    </p:column>
+                     <p:column headerText="INGRESA MATERIA" style="width: 70px" >
+                         <h:outputText value="SI" rendered="#{actividadItem.materia==true}"/>
+                        <h:outputText value="NO" rendered="#{actividadItem.materia==false}"/>
+                         
+                    </p:column>
+
+
+                    <p:column headerText="ACCIONES" style="width: 100px">
+                        <p:commandButton  actionListener="#{actividadControlador.buscarActividadID(actividadItem.idActivida)}" oncomplete="PF('dialogoActividadVer').show()" update=":dldatosVER" icon="ui-icon-search"  /> 
+
+                        <p:commandButton  actionListener="#{actividadControlador.buscarActividadID(actividadItem.idActivida)}" oncomplete="PF('dialogoActividadActualizar').show()" update=":dldatos" icon="ui-icon-pencil"  />  
+                        <p:commandButton actionListener="#{actividadControlador.eliminar(actividadItem)}" update="tablapais1" icon="ui-icon-circle-close">
+                            <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                        </p:commandButton>
+                    </p:column>
+                </p:dataTable>
+                        
+               
+
+            </h:form>
+             </p:panel>
+                </center>
+           
+              
+            <p:dialog header="Ver Datos Actividad" widgetVar="dialogoActividadVer" id="dldatosVER" closable="false" modal="true" >
+                 
+                <h:form>
+                    <p:panelGrid id="gridVer" columns="2">                  
+                        <p:outputLabel value="NOMBRE ACTIVIDAD:" style="font-weight: bold"  />
+                        <p:outputLabel value="#{actividadControlador.actividad.nomActividad}"/>
+                           <p:outputLabel value="INGRESA DE MATERIAS:" style="font-weight: bold"  />
+                           <p:outputLabel value="#{actividadControlador.actividad.materia}"/>
+                    </p:panelGrid>
+                     <p:commandButton value="Cerrar" update="gridVer" process="@this" actionListener="#{actividadControlador.cerrar()}" oncomplete="PF('dialogoActividadVer').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridVer" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog header="Actualizar Datos Actividad" widgetVar="dialogoActividadActualizar" id="dldatos" closable="false" modal="true">
+             
+                <h:form>
+                    <p:panelGrid  id="gridActualizar" columns="2">
+                        <p:outputLabel value="NOMBRE ACTIVIDAD:" style="font-weight: bold" for="txtnomactividad"/>
+                        <p:inputText id="txtnomactividad" value="#{actividadControlador.actividad.nomActividad}" style="width:300px;height:15px">                       
+                            <p:message for="txtnomactividad"/>                
+                     </p:inputText>
+                         <p:outputLabel value="INGRESA MATERIA:" style="font-weight: bold" />
+                          <p:selectBooleanButton id="value1" value="#{actividadControlador.actividad.materia}" onLabel="SI" offLabel="No" style="width:100px" />
+                       
+                    </p:panelGrid>
+                     <p:commandButton value="Actualizar" actionListener="#{actividadControlador.actualizar()}" update="gridActualizar :idformActividad:tablapais1"/>
+                    <p:commandButton value="Cerrar" update="gridActualizar" process="@this" actionListener="#{actividadControlador.cerrar()}" oncomplete="PF('dialogoActividadActualizar').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridActualizar" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+            <p:dialog header="Agregar Datos Actividad" widgetVar="dialogoActividadAgregar" id="dldatos1" modal="true" closable="false">
+              
+                <h:form>
+                    <p:panelGrid  id="panelagregar" columns="2">
+                          <p:outputLabel value="NOMBRE ACTIVIDAD:" style="font-weight: bold" for="txtnomactividad"/>
+                        <p:inputText id="txtnomactividad" value="#{actividadControlador.actividad.nomActividad}" style="width:300px;height:15px">
+                            <p:message for="txtnomactividad"/>                
+                     </p:inputText>
+                           <p:outputLabel value="INGRESA MATERIA:" style="font-weight: bold" />
+                          <p:selectBooleanButton id="value1" value="#{actividadControlador.actividad.materia}" onLabel="SI" offLabel="No" style="width:100px" />
+                      
+                    </p:panelGrid>
+                      <p:commandButton value="Agregar"  actionListener="#{actividadControlador.crear()}" update="panelagregar :idformActividad:tablapais1"/>
+                 <p:commandButton value="Cerrar" update="panelagregar" process="@this" actionListener="#{actividadControlador.cerrar()}" oncomplete="PF('dialogoActividadAgregar').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelagregar" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+           
+
+
+        </ui:define>
+    </ui:composition>
+</html>

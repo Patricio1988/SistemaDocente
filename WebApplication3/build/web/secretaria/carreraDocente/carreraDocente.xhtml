@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+
+        <ui:define name="content">
+
+            <p:separator/>          
+            <!-- TABLA  DATOS DOCENTE-->
+            <p:panel >
+
+                <div style="text-align: center">
+                    <p:outputLabel value="Docente por Carrera" style="font-size: 15pt; font-weight: bold "/> 
+                </div>
+                <h:form>
+
+                    <p:commandButton value="Nuevo" oncomplete="PF('dialogoCarreraDocenteAgregar').show()"/>
+                </h:form>
+                
+
+                <h:form id="frmtabladocente">
+                    <p:dataTable  widgetVar="BUSCAR DOCENTE" id="tabladocente1" value="#{carreraDocenteControlador.listaCarreraDocente(datosControlador.usuario.authorities,selecionPeriodo.idPeriodo)}" var="docenteItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50" >
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Docente" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR DOCENTE').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>
+                        <p:column headerText="CARRERA:" filterBy="#{docenteItem.idCarrera.nomCarrera}">
+                            <h:outputText value="#{docenteItem.idCarrera.nomCarrera}"/>
+                        </p:column>
+                        <p:column headerText="IDENTIFICACIÓN" filterBy="#{docenteItem.idDocente.identificacion}" style="width:120px " filterStyle="width:100px">
+                            <h:outputText value="#{docenteItem.idDocente.identificacion}"/>
+                        </p:column>
+                        <p:column headerText="PRIMER APELLIDO" filterBy="#{docenteItem.idDocente.apellidoPaterno}">
+                            <h:outputText value="#{docenteItem.idDocente.apellidoPaterno}"/>
+                        </p:column>
+                        <p:column headerText="SEGUNDO APELLIDO" filterBy="#{docenteItem.idDocente.apellidoMaterno}">
+                            <h:outputText value="#{docenteItem.idDocente.apellidoMaterno}"/>
+                        </p:column>
+                        <p:column headerText="NOMBRES" filterBy="#{docenteItem.idDocente.nombres}">
+                            <h:outputText value="#{docenteItem.idDocente.nombres}"/>
+                        </p:column>
+                        <p:column headerText="PAÍS" filterBy="#{docenteItem.idDocente.idPais.nomPais}">
+                            <h:outputText value="#{docenteItem.idDocente.idPais.nomPais}"/>
+                        </p:column>
+                        <p:column headerText="ACCIONES" >
+                            <p:commandButton action="#{carreraDocenteControlador.encontrarCarreraDocenteID(docenteItem.idCarreraDocente)}" update=":dialogoDocenteVer" oncomplete="PF('dialogoDatosVer').show()" icon="ui-icon-search" title="Ver"/>
+                            <p:commandButton action="#{carreraDocenteControlador.encontrarCarreraDocenteID(docenteItem.idCarreraDocente)}" update=":dialogoDocenteActualizar" oncomplete="PF('dialogoDatosActualizar').show()" icon="ui-icon-pencil" title="Actualizar"/>                         
+                             <p:commandButton actionListener="#{carreraDocenteControlador.eliminar(docenteItem)}" update=":frmtabladocente:tabladocente1" icon="ui-icon-circle-close">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+
+            <!-- DIALOGO AGREGAR-->
+
+            <p:dialog id="dialogoDocenAgregar" header="Agregar Datos " widgetVar="dialogoCarreraDocenteAgregar" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">                
+                <h:form id="frmBuscar" >
+                            <p:panelGrid columns="3">
+                                <p:outputLabel value="IDENTIFICACIÓN:" for="txtidentificacion" style="font-weight:bold" />
+                                <p:inputText   id="txtidentificacion" value="#{carreraDocenteControlador.identificacion}"  required="true" requiredMessage="La identificacion es un campo Obligatorio" >            
+                                    <p:message for="txtidentificacion"/>                
+                                </p:inputText>
+                                <p:commandButton icon="ui-icon-search" action="#{carreraDocenteControlador.buscarDocenteIdentificacion()}" update=":frmDatos:panelDocente :frmDatos:panelDocenteCarrera">
+                                </p:commandButton>
+                            </p:panelGrid>
+                        </h:form>
+                        <h:form id="frmDatos" >
+                             <p:fieldset legend="Datos Personales">
+                            <p:panelGrid id="panelDocente" columns="4">
+
+                                <p:outputLabel value="TIPO DE IDENTIFICACIÓN:" for="txttpidentificacion" style="font-weight:bold"/>
+                                <h:panelGroup>
+                                    <p:message for="txttpidentificacion"/>
+                                    <p:selectOneMenu id="txttpidentificacion" value="#{carreraDocenteControlador.docente.TIdentificacion}" required="true" requiredMessage="Seleccione el tipo de Identificacion" disabled="#{carreraDocenteControlador.estadoAgregar}">
+                                        <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                        <f:selectItems value="#{docenteControlador.tpIdentificacion}"/>
+                                    </p:selectOneMenu>                          
+                                </h:panelGroup>
+
+                                <p:outputLabel value="APELLIDO PATERNO:" for="txtapellidopaterno" style="font-weight:bold"/>
+
+                                <p:inputText   id="txtapellidopaterno" value="#{carreraDocenteControlador.docente.apellidoPaterno}" disabled="#{carreraDocenteControlador.estadoAgregar}">
+                                    <p:message for="txtapellidopaterno"/>
+                                </p:inputText>
+                                <p:outputLabel value="APELLIDO MATERNO:" style="font-weight:bold"/>
+
+                                <p:inputText  value="#{carreraDocenteControlador.docente.apellidoMaterno}" disabled="#{carreraDocenteControlador.estadoAgregar}"/>
+                                <p:outputLabel value="NOMBRES:" for="txtnombres" style="font-weight:bold"/>
+
+                                <p:inputText id="txtnombres" value="#{carreraDocenteControlador.docente.nombres}" disabled="#{carreraDocenteControlador.estadoAgregar}">
+                                    <p:message for="txtnombres"/>
+                                </p:inputText>
+                                <p:outputLabel value="SEXO:" for="idsexos" style="font-weight:bold"/>
+                                <h:panelGroup>  
+                                    <p:message for="idsexos"/>
+                                    <p:selectOneMenu id="idsexos" value="#{carreraDocenteControlador.docente.sexo}" disabled="#{carreraDocenteControlador.estadoAgregar}">
+                                        <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                        <f:selectItems value="#{docenteControlador.sexos}"/>    
+                                    </p:selectOneMenu>                           
+                                </h:panelGroup>
+
+                                <p:outputLabel value="DIRECCIÓN:" style="font-weight:bold"/>
+
+                                <p:inputText  value="#{carreraDocenteControlador.docente.direccionDocente}" style="width: 228px;" disabled="#{carreraDocenteControlador.estadoAgregar}" />
+                                <p:outputLabel value="PAÍS:" style="font-weight:bold" for="txtpaisorigen"/>
+                                <h:panelGroup>
+                                    <p:message for="txtpaisorigen"/>
+                                    <p:selectOneMenu id="txtpaisorigen"  label="label pais" value="#{carreraDocenteControlador.idpaisOrigen}" required="true" requiredMessage="Seleccione un país" filter="true" disabled="#{carreraDocenteControlador.estadoAgregar}">
+                                        <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                        <f:selectItems value="#{paisControler.recuperarTodos()}" var="itemsPais" itemLabel="#{itemsPais.nomPais}" itemValue="#{itemsPais.idPais}"/>
+                                    </p:selectOneMenu>
+
+                                </h:panelGroup>
+                                <p:outputLabel value="FECHA DE NACIMIENTO:"  for="txtFechaNacimiento" style="font-weight:bold"/> 
+                                <h:panelGroup>
+                                    <p:message for="txtFechaNacimiento"/>
+                                    <p:calendar id="txtFechaNacimiento" label="Fecha de nacimiento"  navigator="true" showOn="button" title="Ejemplo: dd-mm-yyyy" value="#{carreraDocenteControlador.docente.fechaNacimiento}" pattern="dd-MM-yyyy" disabled="#{carreraDocenteControlador.estadoAgregar}"/>                          
+                                </h:panelGroup>                      
+                                <p:outputLabel value="DISCAPACIDAD:" style="font-weight:bold"/>
+                                <p:selectBooleanCheckbox value="#{carreraDocenteControlador.docente.discapacidad}" disabled="#{carreraDocenteControlador.estadoAgregar}">
+                                    <p:ajax event="change" listener="#{carreraDocenteControlador.habilitarDiscapacidad}" update="idtpdisca,numconadis,Porcendiscapacidad"  />
+                                </p:selectBooleanCheckbox> 
+                                <p:outputLabel value=" TIPO DE DISCAPACIDAD:" style="font-weight:bold"/>
+                                <p:selectOneMenu id="idtpdisca" value="#{carreraDocenteControlador.docente.tipoDiscapacidad}" disabled="#{carreraDocenteControlador.estadoOpcionesDiscapacidad || carreraDocenteControlador.estadoAgregar}" >
+                                    <f:selectItem itemLabel="SELECCIONE" itemValue=" " />
+                                    <f:selectItems value="#{docenteControlador.tipodiscapacidades}"/>
+                                </p:selectOneMenu>
+                                <p:outputLabel value=" NÚMERO CARNET DEL CONADIS:" style="font-weight:bold"/>
+                                <p:inputText id="numconadis" value="#{carreraDocenteControlador.docente.numConadis}" disabled="#{carreraDocenteControlador.estadoOpcionesDiscapacidad || carreraDocenteControlador.estadoAgregar}" />
+                                <p:outputLabel value=" PORCENTAJE DE DISCAPACIDAD:" style="font-weight:bold" />
+                                <p:inputText id="Porcendiscapacidad" value="#{carreraDocenteControlador.docente.porcentajeDiscapacidad}" disabled="#{carreraDocenteControlador.estadoOpcionesDiscapacidad || carreraDocenteControlador.estadoAgregar}" />
+                                <p:outputLabel value=" CORREO PERSONAL:" for="txtcorreo" style="font-weight:bold"/>
+                                <p:inputText id="txtcorreo" label="CORREO PERSONAL" value="#{carreraDocenteControlador.docente.correoPersonal}" title="Ejemplo: ejemplo@gmail.com" style="width: 228px;" disabled="#{carreraDocenteControlador.estadoAgregar}">                           
+
+                                    <p:message for="txtcorreo"/>
+                                    <p:tooltip for="txtcorreo" showEvent="focus" hideEvent="blur"/>
+                                </p:inputText>
+                                <p:outputLabel value=" CORREO INSTITUCIONAL:" for="txtcorreoins" style="font-weight:bold"/>
+                                <p:inputText id="txtcorreoins" value="#{carreraDocenteControlador.docente.correoInstitucional}" title="Ejemplo: ejemplo@gmail.com" style="width: 228px;" disabled="#{carreraDocenteControlador.estadoAgregar}">                         
+                                    <p:message for="txtcorreoins"/>                          
+                                </p:inputText>
+
+                            </p:panelGrid>
+                    
+                    </p:fieldset> 
+                 
+                <p:fieldset legend="Datos IES">
+                            <p:panelGrid id="panelDocenteCarrera" columns="4">
+
+                                <p:outputLabel  value="FACULTAD:" for="selectFacu"  rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}" style="font-weight:bold" />
+                                <h:panelGroup>
+                                    <p:message for="selectFacu"/>
+                                    <p:selectOneMenu id="selectFacu" value="#{carreraDocenteControlador.idFacultad}" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}" required="true" requiredMessage="Seleccione una Facultad" disabled="#{carreraDocenteControlador.estadoAgregarIes}">
+                                        <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                        <f:selectItems value="#{carreraDocenteControlador.itemsFacultad}" >
+                                        </f:selectItems>
+                                        <p:ajax event="change" listener="#{carreraDocenteControlador.getCarreras}" update="idcarrera"  />
+
+                                    </p:selectOneMenu>
+                                </h:panelGroup>
+                                <p:outputLabel  value="CARRERA:"  for="idcarrera" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}" style="font-weight:bold"  />
+                                <h:panelGroup>
+                                    <p:message for="idcarrera"/>
+                                    <p:selectOneMenu id="idcarrera" value="#{carreraDocenteControlador.idCarrera}" disabled="#{carreraDocenteControlador.estadoComboBox || carreraDocenteControlador.estadoAgregarIes}" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}" required="true" requiredMessage="Seleccione una Carrera" >
+                                        <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                        <f:selectItems value="#{carreraDocenteControlador.itemsCarrera}"/>
+                                    </p:selectOneMenu>                       
+                                </h:panelGroup>
+
+                                <p:outputLabel value="FECHA DE INGRESO IES:" style="font-weight:bold" for="txtFechaInicio"/>
+                                <h:panelGroup>
+                                    <p:message for="txtFechaInicio"/>
+                                    <p:calendar id="txtFechaInicio" value="#{carreraDocenteControlador.carreraDocente.fechaIngresoIes}" locale="es" navigator="true"  onkeypress="return permite(event, 'none')" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" disabled="#{carreraDocenteControlador.estadoAgregarIes}" >
+                                        <p:ajax event="dateSelect" update="ffinal" />   
+                                    </p:calendar>                            
+                                </h:panelGroup>
+                                <p:outputLabel value="FECHA DE SALIDA IES:" style="font-weight:bold" for="ffinal"/>
+
+                                <p:calendar id="ffinal"  value="#{carreraDocenteControlador.carreraDocente.fechaSalidaIes}" mindate="#{carreraDocenteControlador.carreraDocente.fechaIngresoIes}" navigator="true" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy"  onkeypress=" return permite(event, 'none')" disabled="#{carreraDocenteControlador.estadoAgregarIes}">
+                                    <f:attribute name="txtFechaInicio" value="#{carreraDocenteControlador.carreraDocente.fechaIngresoIes}"/>
+                                    <f:validator validatorId="validatorFechas" />
+                                    <p:message for="ffinal"/>
+                                </p:calendar>            
+                            </p:panelGrid>
+                    <p:commandButton value="Agregar" id="agregardoce" action="#{carreraDocenteControlador.crear(datosControlador.usuario.authorities,selecionPeriodo.idPeriodo)}" update="panelDocente panelDocenteCarrera :frmBuscar:txtidentificacion :frmtabladocente:tabladocente1"  icon="ui-icon-disk" />
+                    <p:commandButton value="Cerrar" update="dialogoDocenAgregar" process="@this" actionListener="#{carreraDocenteControlador.cerrar()}" oncomplete="PF('dialogoCarreraDocenteAgregar').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="dialogoDocenAgregar" />
+                    </p:commandButton>
+                    
+                        
+                    </p:fieldset>
+                    </h:form>
+            
+              
+            </p:dialog>
+
+            <!-- DIALOGO ACTUALIZAR-->
+
+            <p:dialog id="dialogoDocenteActualizar" header="Actualizar Datos Personales " widgetVar="dialogoDatosActualizar" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <h:form>
+                              <p:fieldset legend="Datos Personales">
+                            <p:panelGrid id="panelDocente" columns="4">
+
+                                <p:outputLabel value="TIPO DE IDENTIFICACIÓN:" for="txttpidentificacion" style="font-weight:bold"/>
+                                <h:panelGroup>
+                                    <p:message for="txttpidentificacion"/>
+                                    <p:selectOneMenu id="txttpidentificacion" value="#{carreraDocenteControlador.docente.TIdentificacion}" required="true" requiredMessage="Seleccione el tipo de Identificacion" >
+                                        <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                        <f:selectItems value="#{docenteControlador.tpIdentificacion}"/>
+                                    </p:selectOneMenu>                          
+                                </h:panelGroup>
+                                     <p:outputLabel value="IDENTIFICACIÓN:" for="txtidentificacion" style="font-weight:bold" />
+                                     <p:inputText   id="txtidentificacion" value="#{carreraDocenteControlador.docente.identificacion}"  required="true" requiredMessage="La identificacion es un campo Obligatorio" >            
+                                    <p:message for="txtidentificacion"/>                
+                                </p:inputText>
+
+                                <p:outputLabel value="APELLIDO PATERNO:" for="txtapellidopaterno" style="font-weight:bold"/>
+
+                                <p:inputText   id="txtapellidopaterno" value="#{carreraDocenteControlador.docente.apellidoPaterno}" >
+                                    <p:message for="txtapellidopaterno"/>
+                                </p:inputText>
+                                <p:outputLabel value="APELLIDO MATERNO:" style="font-weight:bold"/>
+
+                                <p:inputText  value="#{carreraDocenteControlador.docente.apellidoMaterno}" />
+                                <p:outputLabel value="NOMBRES:" for="txtnombres" style="font-weight:bold"/>
+
+                                <p:inputText id="txtnombres" value="#{carreraDocenteControlador.docente.nombres}">
+                                    <p:message for="txtnombres"/>
+                                </p:inputText>
+                                <p:outputLabel value="SEXO:" for="idsexos" style="font-weight:bold"/>
+                                <h:panelGroup>  
+                                    <p:message for="idsexos"/>
+                                    <p:selectOneMenu id="idsexos" value="#{carreraDocenteControlador.docente.sexo}" >
+                                        <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                        <f:selectItems value="#{docenteControlador.sexos}"/>    
+                                    </p:selectOneMenu>                           
+                                </h:panelGroup>
+
+                                <p:outputLabel value="DIRECCIÓN:" style="font-weight:bold"/>
+
+                                <p:inputText  value="#{carreraDocenteControlador.docente.direccionDocente}" style="width: 228px;"  />
+                                <p:outputLabel value="PAÍS:" style="font-weight:bold" for="txtpaisorigen"/>
+                                <h:panelGroup>
+                                    <p:message for="txtpaisorigen"/>
+                                    <p:selectOneMenu id="txtpaisorigen"  label="label pais" value="#{carreraDocenteControlador.idpaisOrigen}" required="true" requiredMessage="Seleccione un país" filter="true">
+                                        <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                        <f:selectItems value="#{paisControler.recuperarTodos()}" var="itemsPais" itemLabel="#{itemsPais.nomPais}" itemValue="#{itemsPais.idPais}"/>
+                                    </p:selectOneMenu>
+
+                                </h:panelGroup>
+                                <p:outputLabel value="FECHA DE NACIMIENTO:"  for="txtFechaNacimiento" style="font-weight:bold"/> 
+                                <h:panelGroup>
+                                    <p:message for="txtFechaNacimiento"/>
+                                    <p:calendar id="txtFechaNacimiento" label="Fecha de nacimiento"  navigator="true" showOn="button" title="Ejemplo: dd-mm-yyyy" value="#{carreraDocenteControlador.docente.fechaNacimiento}" pattern="dd-MM-yyyy" />                          
+                                </h:panelGroup>                      
+                                <p:outputLabel value="DISCAPACIDAD:" style="font-weight:bold"/>
+                                <p:selectBooleanCheckbox value="#{carreraDocenteControlador.docente.discapacidad}" >
+                                    <p:ajax event="change" listener="#{carreraDocenteControlador.habilitarDiscapacidad}" update="idtpdisca,numconadis,Porcendiscapacidad"  />
+                                </p:selectBooleanCheckbox> 
+                                <p:outputLabel value=" TIPO DE DISCAPACIDAD:" style="font-weight:bold"/>
+                                <p:selectOneMenu id="idtpdisca" value="#{carreraDocenteControlador.docente.tipoDiscapacidad}" disabled="#{carreraDocenteControlador.estadoOpcionesDiscapacidad}" >
+                                    <f:selectItem itemLabel="SELECCIONE" itemValue=" " />
+                                    <f:selectItems value="#{docenteControlador.tipodiscapacidades}"/>
+                                </p:selectOneMenu>
+                                <p:outputLabel value=" NÚMERO CARNET DEL CONADIS:" style="font-weight:bold"/>
+                                <p:inputText id="numconadis" value="#{carreraDocenteControlador.docente.numConadis}" disabled="#{carreraDocenteControlador.estadoOpcionesDiscapacidad}" />
+                                <p:outputLabel value=" PORCENTAJE DE DISCAPACIDAD:" style="font-weight:bold" />
+                                <p:inputText id="Porcendiscapacidad" value="#{carreraDocenteControlador.docente.porcentajeDiscapacidad}" disabled="#{carreraDocenteControlador.estadoOpcionesDiscapacidad}" />
+                                <p:outputLabel value=" CORREO PERSONAL:" for="txtcorreo" style="font-weight:bold"/>
+                                <p:inputText id="txtcorreo" label="CORREO PERSONAL" value="#{carreraDocenteControlador.docente.correoPersonal}" title="Ejemplo: ejemplo@gmail.com" style="width: 228px;" >                           
+
+                                    <p:message for="txtcorreo"/>
+                                    <p:tooltip for="txtcorreo" showEvent="focus" hideEvent="blur"/>
+                                </p:inputText>
+                                <p:outputLabel value=" CORREO INSTITUCIONAL:" for="txtcorreoins" style="font-weight:bold"/>
+                                <p:inputText id="txtcorreoins" value="#{carreraDocenteControlador.docente.correoInstitucional}" title="Ejemplo: ejemplo@gmail.com" style="width: 228px;" >                         
+                                    <p:message for="txtcorreoins"/>                          
+                                </p:inputText>
+
+                            </p:panelGrid>
+                    
+                    </p:fieldset> 
+                    <p:panelGrid  columns="4" id="gridActualizar">                                   
+                         <p:outputLabel  value="FACULTAD:" for="selectFacu"  rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}" style="font-weight:bold" />
+                        <h:panelGroup>
+                            <p:message for="selectFacu"/>
+                            <p:selectOneMenu id="selectFacu" value="#{carreraDocenteControlador.idFacultad}" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}" required="true" requiredMessage="Seleccione una Facultad" >
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                <f:selectItems value="#{carreraDocenteControlador.itemsFacultad}" >
+                                </f:selectItems>
+                                <p:ajax event="change" listener="#{carreraDocenteControlador.getCarreras}" update="idcarrera"  />
+
+                            </p:selectOneMenu>
+                        </h:panelGroup>
+
+                        <p:outputLabel  value="CARRERA:"  for="idcarrera" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}" style="font-weight:bold"  />
+                        <h:panelGroup>
+                            <p:message for="idcarrera"/>
+                            <p:selectOneMenu id="idcarrera" value="#{carreraDocenteControlador.idCarrera}" disabled="#{carreraDocenteControlador.estadoComboBox}" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}" required="true" requiredMessage="Seleccione una Carrera">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                <f:selectItems value="#{carreraDocenteControlador.itemsCarrera}"/>
+                            </p:selectOneMenu>                       
+                        </h:panelGroup>
+                        
+                        <p:outputLabel value="FECHA DE INGRESO IES:" style="font-weight:bold" for="txtFechaInicio"/>
+                        <h:panelGroup>
+                            <p:message for="txtFechaInicio"/>
+                            <p:calendar id="txtFechaInicio" value="#{carreraDocenteControlador.carreraDocente.fechaIngresoIes}" locale="es" navigator="true"  onkeypress="return permite(event, 'none')" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" >
+                                <p:ajax event="dateSelect" update="ffinal" />   
+                            </p:calendar>                            
+                        </h:panelGroup>
+                        <p:outputLabel value="FECHA DE SALIDA IES:" style="font-weight:bold" for="ffinal"/>
+
+                        <p:calendar id="ffinal"  value="#{carreraDocenteControlador.carreraDocente.fechaSalidaIes}" mindate="#{carreraDocenteControlador.carreraDocente.fechaIngresoIes}" navigator="true" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy"  onkeypress=" return permite(event, 'none')" >
+                            <f:attribute name="txtFechaInicio" value="#{carreraDocenteControlador.carreraDocente.fechaIngresoIes}"/>
+                            <f:validator validatorId="validatorFechas" />
+                            <p:message for="ffinal"/>
+                        </p:calendar>
+                    </p:panelGrid>   
+                   
+                    <p:commandButton value="Actualizar" actionListener="#{carreraDocenteControlador.actualizar(datosControlador.usuario.authorities,selecionPeriodo.idPeriodo)}"  update="gridActualizar :frmtabladocente:tabladocente1 " icon="ui-icon-pencil"/>
+                    <p:commandButton value="Cerrar" update="gridActualizar" process="@this" actionListener="#{carreraDocenteControlador.cerrar()}" oncomplete="PF('dialogoDatosActualizar').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridActualizar" />
+                    </p:commandButton>
+
+                </h:form>
+            </p:dialog>
+            <!-- DIALOGO VER-->
+            <p:dialog id="dialogoDocenteVer" header="Ver Datos Personales" widgetVar="dialogoDatosVer" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <h:form>
+                    <p:outputPanel id="relacionCargoDetail" style="text-align:center;">
+                        <p:panelGrid columns="2" id="gridVer">
+                            <p:outputLabel value="FACULTAD:" style="font-weight:bold"/>
+                            <p:outputLabel id="nomcarrera" value="#{carreraDocenteControlador.carreraDocente.idCarrera.idFacultad.nomFacultad}"/>
+                            <p:outputLabel value="CARRERA:" style="font-weight:bold"/>
+                            <p:outputLabel id="nuevacedula" value="#{carreraDocenteControlador.carreraDocente.idCarrera.nomCarrera}"/>
+                               <p:outputLabel value="IDENTIFICACION:" style="font-weight:bold"/>
+                               <p:outputLabel  value="#{carreraDocenteControlador.carreraDocente.idDocente.identificacion}"/>
+                            <p:outputLabel value="APELLIDO PATERNO:" style="font-weight:bold"/>
+                            <p:outputLabel  value="#{carreraDocenteControlador.carreraDocente.idDocente.apellidoPaterno}"/>
+                            <p:outputLabel value="APELLIDO MATERNO:" style="font-weight:bold"/>
+
+                            <p:outputLabel  value="#{carreraDocenteControlador.carreraDocente.idDocente.apellidoMaterno}"/>
+                            <p:outputLabel value="NOMBRES:" style="font-weight:bold"/>
+
+                            <p:outputLabel  value="#{carreraDocenteControlador.carreraDocente.idDocente.nombres}"/>                       
+                            <p:outputLabel value="FECHA DE INGRESO:" style="font-weight:bold"/>     
+                            <p:outputLabel  value="#{carreraDocenteControlador.carreraDocente.fechaIngresoIes}"  >
+                                <f:convertDateTime pattern="yyyy-MM-dd"/>
+                            </p:outputLabel>
+                             <p:outputLabel value="FECHA DE SALIDA:" style="font-weight:bold"/>     
+                             <p:outputLabel  value="#{carreraDocenteControlador.carreraDocente.fechaSalidaIes}"  >
+                                <f:convertDateTime pattern="yyyy-MM-dd"/>
+                            </p:outputLabel>
+                             <p:outputLabel value="ESTADO:" style="font-weight:bold"/>
+                             <h:panelGroup>
+                              <h:outputText value="ACTIVO" rendered="#{carreraDocenteControlador.carreraDocente.estadoDocente==true}"/>
+                            <h:outputText value="INACTIVO" rendered="#{carreraDocenteControlador.carreraDocente.estadoDocente==false}"/>
+                            </h:panelGroup>
+                        </p:panelGrid>
+                        <p:commandButton value="Cerrar" update="gridVer" process="@this" actionListener="#{carreraDocenteControlador.cerrar()}" oncomplete="PF('dialogoDatosVer').hide();" icon="ui-icon-closethick" >
+                            <p:resetInput target="gridVer" />
+                        </p:commandButton>
+                    </p:outputPanel>
+                </h:form>
+            </p:dialog>
+            <!-- DIALOGO CONFIRMAR-->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+        </ui:define>
+        <ui:define name="bottom"></ui:define>
+    </ui:composition>
+</html>

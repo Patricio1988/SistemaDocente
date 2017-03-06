@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+      
+        <ui:define name="content">
+            <p:growl  showDetail="true"  autoUpdate="true" sticky="false" />   
+  
+                <p:panel header="Carga Evidencia Publicación" >
+                    <h:form id="frmCDEvidencia">
+                         <p:dataTable  widgetVar="BUSCAR" id="tabladocente1" value="#{carreraDocenteControlador.listarDocenteCarreraVigentes(datosControlador.usuario.authorities,selecionPeriodo.idPeriodo)}" var="docenteItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Docente" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>                            
+                       <p:column headerText="CARRERA:" filterBy="#{docenteItem.idCarrera.nomCarrera}">
+                            <h:outputText value="#{docenteItem.idCarrera.nomCarrera}"/>
+                        </p:column>
+                        <p:column headerText="PRIMER APELLIDO" filterBy="#{docenteItem.idDocente.apellidoPaterno}">
+                            <h:outputText value="#{docenteItem.idDocente.apellidoPaterno}"/>
+                        </p:column>
+                        <p:column headerText="SEGUNDO APELLIDO" filterBy="#{docenteItem.idDocente.apellidoMaterno}">
+                            <h:outputText value="#{docenteItem.idDocente.apellidoMaterno}"/>
+                        </p:column>
+                        <p:column headerText="NOMBRES" filterBy="#{docenteItem.idDocente.nombres}">
+                            <h:outputText value="#{docenteItem.idDocente.nombres}"/>
+                        </p:column>
+                        <p:column headerText="IDENTIFICACIÓN" filterBy="#{docenteItem.idDocente.identificacion}">
+                            <h:outputText value="#{docenteItem.idDocente.identificacion}"/>
+                        </p:column>
+                        <p:column>
+                            <p:commandButton value="SELECCIONAR" action="#{publicacionesControlador.recuperarDocenteCarreraPorId(docenteItem.idDocente.idDocente, docenteItem.idCarrera.idCarrera)}"   update=":frmCDEvidencia:datosdocente1 :frmtablaPublicacion:tablaPublicaciones" />
+
+                        </p:column>    
+
+                    </p:dataTable>
+                    <!-- TABLA  DATOS DOCENTE-->
+                    <p:panelGrid columns="4" id="datosdocente1" >
+                        <f:facet name="header">
+                            Datos Docente Seleccionado
+                        </f:facet>
+                        <p:outputLabel value="NOMBRES:" style="font-weight:bold"/>
+                        <p:outputLabel id="apepater" value="#{publicacionesControlador.carreraDocente.idDocente.apellidoPaterno} #{publicacionesControlador.carreraDocente.idDocente.apellidoMaterno} #{publicacionesControlador.carreraDocente.idDocente.nombres}" > </p:outputLabel>                  
+                        <p:outputLabel value="IDENTIFICACIÓN:" style="font-weight:bold"/>
+                        <p:outputLabel id="identifi" value="#{publicacionesControlador.numeroCedula}"/>
+                    </p:panelGrid>                   
+                    </h:form>      
+                </p:panel>
+             <p:panel header="Publicación Docente">
+          
+                <!--  tabla capacitacion-->
+                 <h:form id="frmtablaPublicacion">
+                    <p:dataTable  widgetVar="BUSCAR CURSO" id="tablaPublicaciones" value="#{publicacionesControlador.listaPublicacionesDocente()}" var="publicacionesItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Publicación" />
+                                <p:inputText id="globalFilter1" onkeyup="PF('BUSCAR CURSO').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>                            
+
+                        <p:column headerText="TIPO DE PUBLICACIÓN:" filterBy="#{publicacionesItem.idTipoPublicacion.nomTipoPublicacion}">
+                            <h:outputText value="#{publicacionesItem.idTipoPublicacion.nomTipoPublicacion}"/>
+                        </p:column>
+                        <p:column headerText="CÓDIGO PUBLICACIÓN:" filterBy="#{publicacionesItem.codPublicacion}">
+                            <h:outputText value="#{publicacionesItem.codPublicacion}"/>
+                        </p:column>
+                        <p:column headerText="NOMBRE PUBLICACIÓN" filterBy="#{publicacionesItem.nomPublicacion}">
+                            <h:outputText value="#{publicacionesItem.nomPublicacion}"/>
+                        </p:column>
+                        <p:column headerText="NÚMERO ISBN/ISSN" filterBy="#{publicacionesItem.numIsbnIssn}">
+                            <h:outputText value="#{publicacionesItem.numIsbnIssn}"/>
+                        </p:column>
+                        <p:column headerText="FECHA DE PUBLICACIÓN" filterBy="#{publicacionesItem.fechaPublicacion}">
+                            <h:outputText value="#{publicacionesItem.fechaPublicacion}">
+                                <f:convertDateTime pattern="dd-MMM-yyyy" /> 
+                            </h:outputText>
+                        </p:column>    
+
+                       <p:column headerText="LISTA ARCHIVOS" >
+                             <p:panelGrid columns="1">
+                                 <h:outputText value="#{publicacionesItem.nombreDocPublicacion}"/>
+                             <h:panelGroup>
+                                 <p:commandButton   ajax="false" actionListener="#{publicacionesControlador.descargarArchivoRepositorio(publicacionesItem.idDocPublicacion)}" icon="ui-icon-document" title="Descargar" rendered="#{publicacionesItem.nombreDocPublicacion!=null || publicacionesItem.nombreDocPublicacion==publicacionesControlador.vacio}">
+                                <p:fileDownload value="#{publicacionesControlador.file}"/>    
+                            </p:commandButton>
+                                 <p:commandButton actionListener="#{publicacionesControlador.eliminarArchivoRepositorio(publicacionesItem.idDocPublicacion ,publicacionesItem.idPublicacion)}" update=":frmtablaPublicacion:tablaPublicaciones" icon="ui-icon-circle-close" rendered="#{publicacionesItem.nombreDocPublicacion!=null || publicacionesItem.nombreDocPublicacion==publicacionesControlador.vacio}">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+                             </h:panelGroup>
+                             </p:panelGrid>
+                        </p:column>
+
+                        <p:column headerText="ACCIONES" >
+                            <p:commandButton action="#{publicacionesControlador.recuperarPublicacionID(publicacionesItem.idPublicacion)}" update=":dlgDatosSubir" oncomplete="PF('dglSubirArchivo').show()" value="Cargar Archivo" title="Ver"/>
+                                                   
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+            
+            <p:dialog id="dlgDatosSubir" header="Subir Archivo" widgetVar="dglSubirArchivo" modal="true" showEffect="fade" hideEffect="fade" resizable="false" >
+
+                <h:form enctype="multipart/form-data">
+                    <p:outputPanel id="relacionlaboralDetail" style="text-align:center;">
+                        <p:panelGrid columns="2" id="gridVer">
+
+                            <p:outputLabel value="TIPO DE PUBLICACIÓN:" style="font-weight: bold"/>
+                            <p:outputLabel value="#{publicacionesControlador.publicaciones.idTipoPublicacion.nomTipoPublicacion}"/>
+
+                            <p:outputLabel value="CÓDIGO PUBLICACIÓN:" style="font-weight: bold"/>
+                            <p:outputLabel  value="#{publicacionesControlador.publicaciones.codPublicacion}"/>
+                            <p:outputLabel value="FILIACION:"/>
+                            <p:selectBooleanCheckbox value="#{publicacionesControlador.publicaciones.filiacion}" />   
+                            <p:outputLabel value="NOMBRE PUBLICACIÓN:" style="font-weight: bold"/>
+                            <p:outputLabel  value="#{publicacionesControlador.publicaciones.nomPublicacion}"/>
+
+                            <p:outputLabel value="FECHA DE PUBLICACIÓN:" style="font-weight: bold"/>
+
+                            <p:outputLabel  value="#{publicacionesControlador.publicaciones.fechaPublicacion}"  >
+                                <f:convertDateTime pattern="yyyy-MM-dd"/>
+                            </p:outputLabel>
+                            <p:outputLabel value="NÚMERO ISBN/ISSN:" style="font-weight: bold"/>
+                            <p:outputLabel  value="#{publicacionesControlador.publicaciones.numIsbnIssn}"/>
+                            <p:outputLabel value="ESTADO DE PUBLICACIÓN:" style="font-weight: bold"/>
+                            <p:outputLabel value="#{publicacionesControlador.publicaciones.estadoPublicacion}"/>
+                            <p:outputLabel value="NOMBRE REVISTA:"/>
+                            <p:outputLabel value="#{publicacionesControlador.publicaciones.nombreRevista}" /> 
+                            <p:outputLabel value="NOMBRE BASE INDEXADA:" style="font-weight: bold"/>
+                            <p:outputLabel id="base" value="#{publicacionesControlador.publicaciones.nomBaseIndexada}"/> 
+                            <p:outputLabel value="ARCHIVO:(.pdf)" style="font-weight:bold"/>
+                            <h:panelGroup>
+                                <p:fileUpload  fileUploadListener="#{publicacionesControlador.handleFileUpload}"  update="txtlabael"  allowTypes="/(\.|\/)(pdf)$/" sizeLimit="6250000" />
+
+
+                                <p:outputLabel  id="txtlabael" value="#{publicacionesControlador.publicaciones.nombreDocPublicacion}" style="font-weight:bold"/>
+                                <p:commandButton  value="Cargar"  actionListener="#{publicacionesControlador.subirArchivoRepositorio()}" oncomplete="PF('dglSubirArchivo').hide()"  update=":frmtablaPublicacion:tablaPublicaciones"  icon="ui-icon-disk" />
+                            </h:panelGroup>
+                            
+                        </p:panelGrid>
+                    </p:outputPanel>
+                </h:form>
+            </p:dialog>
+               <!--  Dialogo confirmacion-->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+
+        </ui:define>
+    </ui:composition>
+</html>
+

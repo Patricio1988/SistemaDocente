@@ -1,0 +1,10 @@
+com.ec.uce.medicina.docente.Dao
+com.ec.uce.medicina.docente.alfresco.archivo
+com.ec.uce.medicina.docente.alfresco.modelo
+com.ec.uce.medicina.docente.controlador
+com.ec.uce.medicina.docente.controllers
+com.ec.uce.medicina.docente.fabrica
+com.ec.uce.medicina.docente.fachada
+com.ec.uce.medicina.docente.modelo
+com.ec.uce.medicina.docente.util
+com.uce.uce.medicina.docente.servicio

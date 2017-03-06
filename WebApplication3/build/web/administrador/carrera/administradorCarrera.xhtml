@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+
+        <ui:define name="content">
+           
+
+            <p:panel header="Administrador Datos de la  Carrera">
+                <!-- TABLA CARRERA-->
+                <h:form>
+
+                    <p:commandButton value="Nuevo" oncomplete="PF('dialogoCarreraAgregar').show()"/>
+                </h:form>
+                <h:form id="frmtablaCarrera">
+                    <p:dataTable  widgetVar="BUSCAR" id="tablaCarrera" value="#{carreraControlador.recuperarTodos()}" var="carreItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Carrera" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>
+                        <p:column headerText="FACULTAD">
+                            <h:outputText value="#{carreItem.idFacultad.nomFacultad}" />
+                        </p:column>
+                        <p:column headerText="CARRERA" filterBy="#{carreItem.nomCarrera}">
+                            <h:outputText value="#{carreItem.nomCarrera}" />
+                        </p:column>   
+                        <p:column headerText="MODALIDAD" filterBy="#{carreItem.modalidad}">
+                            <h:outputText value="#{carreItem.modalidad}" />
+                        </p:column>
+                        <p:column headerText="NIVEL">
+                            <h:outputText value="#{carreItem.nivel}" />
+                        </p:column>  
+                        <p:column headerText="TÍTULO ">
+                            <h:outputText value="#{carreItem.tituloOtorga}" />
+                        </p:column> 
+                        <p:column headerText="DURACIÓN">
+                            <h:outputText value="#{carreItem.duracionCarrera}" />
+                        </p:column>
+
+                        <p:column headerText="ACCIONES" >
+                            <p:commandButton action="#{carreraControlador.buscarCarrera(carreItem.idCarrera)}" update=":dialogoCarreraVer" oncomplete="PF('dialogoDatosVer').show()" icon="ui-icon-search" title="Ver"/>
+                            <p:commandButton action="#{carreraControlador.buscarCarrera(carreItem.idCarrera)}" update=":dialogoCarreraActualizar" oncomplete="PF('dialogoDatosActualizar').show()" icon="ui-icon-pencil" title="Actualizar"/>
+                            <p:commandButton actionListener="#{carreraControlador.eliminar(carreItem)}" update=":frmtablaCarrera:tablaCarrera" icon="ui-icon-circle-close">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+            <!-- DIALOGO AGREGAR-->
+
+            <p:dialog id="dialogoCarreAgregar" header="Agregar Datos de la Carrera" widgetVar="dialogoCarreraAgregar" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <h:form>
+                    <p:panelGrid id="panelCarrera" columns="4">
+                        <p:outputLabel value="UNIVERSIDAD:" for="txtUniversidad" style="font-weight: bold"/>
+                        <h:panelGroup>
+                            <p:message for="txtUniversidad"/>      
+                            <p:selectOneMenu id="txtUniversidad" value="#{carreraControlador.idUniversidad}" required="true" requiredMessage="Seleccione una Universidad">
+                                <f:selectItem itemLabel="Selecione Uno" itemValue=" " />
+                                <f:selectItems value="#{carreraControlador.itemsUniversidad}" >
+                                </f:selectItems>
+                                <p:ajax event="change" listener="#{carreraControlador.getFacultades}" update="idfacultad"  />
+                            </p:selectOneMenu>    
+                        </h:panelGroup>
+
+                        <p:outputLabel value="FACULTAD:" style="font-weight: bold" for="idfacultad"/>
+                        <h:panelGroup>
+                            <p:message for="idfacultad"/>
+                            <p:selectOneMenu id="idfacultad" value="#{carreraControlador.idFacultad}" disabled="#{carreraControlador.estadoComboBox}" required="true" requiredMessage="Seleccione una Facultad">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue=" " />
+                                <f:selectItems value="#{carreraControlador.itemsFacultad}"/>
+                            </p:selectOneMenu>
+                          
+                        </h:panelGroup>
+                        <p:outputLabel value="CARRERA:" style="font-weight: bold" for="nomcarrera"/>
+                        <p:inputText id="nomcarrera" value="#{carreraControlador.carrera.nomCarrera}">
+                           
+                            <p:message for="nomcarrera"/>
+                        </p:inputText>
+                        <p:outputLabel value="ÁREA UNESCO" style="font-weight: bold"/>
+
+                        <p:inputText id="codarea" value="#{carreraControlador.carrera.areaunesco}"/>
+                        <p:outputLabel value="SUBÁREA UNESCO" style="font-weight: bold"/>
+
+                        <p:inputText id="codsubarea" value="#{carreraControlador.carrera.subareaunesco}"/>
+                        <p:outputLabel value="NIVEL: " for="nivel1" style="font-weight: bold"/>
+                        <h:panelGroup>
+                             <p:message for="nivel1"/>
+                            <p:selectOneMenu id="nivel1" value="#{carreraControlador.carrera.nivel}" effect="fold" editable="false" required="true" requiredMessage="Seleccione un Nivel">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                <f:selectItems value="#{carreraControlador.niveles}" />
+                            </p:selectOneMenu>
+                           
+                        </h:panelGroup>
+
+
+                        <p:outputLabel value="NOMBRE DEL TÍTULO QUE OTORGA:" style="font-weight: bold" for="titulo"/>
+
+                        <p:inputText id="titulo" value="#{carreraControlador.carrera.tituloOtorga}">
+                           
+                            <p:message for="titulo"/>
+                        </p:inputText>
+                        <p:outputLabel value="NÚMERO DE REGISTRO DEL ÓRGANO COLEGIADO:" style="font-weight: bold"/>
+
+                        <p:inputText id="numorgaco" value="#{carreraControlador.carrera.numRegOrganoColegiado}"/> 
+                        <p:outputLabel value="FECHA DE REGISTRO ÓRGANO COLIEGIADO:" style="font-weight: bold"/>
+                        <p:calendar id="txtFechaorg" value="#{carreraControlador.carrera.fechaOrganoColegiado}" locale="es" navigator="true"   showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" >
+                        </p:calendar>
+
+                        <p:outputLabel value="NÚMERO DE REGISTRO CONESUP:" style="font-weight: bold"/>
+
+                        <p:inputText id="numconesup" value="#{carreraControlador.carrera.numRegConesup}"/> 
+                        <p:outputLabel value="FECHA DE REGISTRO CONESUP:" style="font-weight: bold"/>
+                        <p:calendar id="txtFechacone" value="#{carreraControlador.carrera.fechaRegConesup}" locale="es" navigator="true"   showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" >
+                        </p:calendar>
+                        <p:outputLabel value="MODALIDAD:" for="modalidad1" style="font-weight: bold"/>
+                        <h:panelGroup>
+                            <p:message for="modalidad1"/>
+                            <p:selectOneMenu id="modalidad1" value="#{carreraControlador.carrera.modalidad}" effect="fold" editable="false" required="true" requiredMessage="Seleccione una Modalidad">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="" />
+                                <f:selectItems value="#{carreraControlador.modalidades}" />
+                            </p:selectOneMenu>                          
+                        </h:panelGroup>
+                        <p:outputLabel value="DURACIÓN DE LA CARRERA(AÑOS):" style="font-weight: bold" for="duracion"/>
+
+                        <p:inputText id="duracion" value="#{carreraControlador.carrera.duracionCarrera}">                            
+                            <p:message for="duracion"/>
+                        </p:inputText>
+                        <p:outputLabel value="TELÉFONO DE LA CARRERA: " style="font-weight: bold" for="txttelefono"/>
+                        <p:inputMask id="txttelefono" mask="(99) 9999-999" value="#{carreraControlador.carrera.telefono}"/>
+                    </p:panelGrid>
+                    <p:commandButton value="Agregar" id="agregarcargo"  action="#{carreraControlador.crear()}" update="panelCarrera :frmtablaCarrera:tablaCarrera"  icon="ui-icon-disk" />
+                     <p:commandButton value="Cerrar" update="panelCarrera" process="@this" actionListener="#{carreraControlador.cerrar()}" oncomplete="PF('dialogoCarreraAgregar').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelCarrera" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+
+            <!-- DIALOGO ACTUALIZAR-->
+
+            <p:dialog id="dialogoCarreraActualizar"  header="Actualizar Datos de la Carrera" widgetVar="dialogoDatosActualizar" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <p:ajax event="close" listener="#{carreraControlador.handleClose}" />
+                <h:form>
+                   
+                        <p:panelGrid  columns="2" id="gridActualizar">
+                             <p:outputLabel value="UNIVERSIDAD:" for="txtUniversidad" style="font-weight: bold"/>
+                        <h:panelGroup>
+                            <p:message for="txtUniversidad"/>      
+                            <p:selectOneMenu id="txtUniversidad" value="#{carreraControlador.idUniversidad}" required="true" requiredMessage="Seleccione una Universidad">
+                                <f:selectItem itemLabel="Selecione Uno" itemValue=" " />
+                                <f:selectItems value="#{carreraControlador.itemsUniversidad}" >
+                                </f:selectItems>
+                                <p:ajax event="change" listener="#{carreraControlador.getFacultades}" update="idfacultad"  />
+                            </p:selectOneMenu>    
+                        </h:panelGroup>
+
+                        <p:outputLabel value="FACULTAD:" style="font-weight: bold" for="idfacultad"/>
+                        <h:panelGroup>
+                            <p:message for="idfacultad"/>
+                            <p:selectOneMenu id="idfacultad" value="#{carreraControlador.idFacultad}" disabled="#{carreraControlador.estadoComboBox}" required="true" requiredMessage="Seleccione una Facultad">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue=" " />
+                                <f:selectItems value="#{carreraControlador.itemsFacultad}"/>
+                            </p:selectOneMenu>
+                          
+                        </h:panelGroup>
+                        <p:outputLabel value="CARRERA:" style="font-weight: bold" for="nomcarrera"/>
+                        <p:inputText id="nomcarrera" value="#{carreraControlador.carrera.nomCarrera}">
+                           
+                            <p:message for="nomcarrera"/>
+                        </p:inputText>
+                        <p:outputLabel value="ÁREA UNESCO" style="font-weight: bold"/>
+
+                        <p:inputText id="codarea" value="#{carreraControlador.carrera.areaunesco}"/>
+                        <p:outputLabel value="SUBÁREA UNESCO" style="font-weight: bold"/>
+
+                        <p:inputText id="codsubarea" value="#{carreraControlador.carrera.subareaunesco}"/>
+                        <p:outputLabel value="NIVEL: " for="nivel1" style="font-weight: bold"/>
+                        <h:panelGroup>
+                             <p:message for="nivel1"/>
+                            <p:selectOneMenu id="nivel1" value="#{carreraControlador.carrera.nivel}" effect="fold" editable="false" required="true" requiredMessage="Seleccione un Nivel">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                <f:selectItems value="#{carreraControlador.niveles}" />
+                            </p:selectOneMenu>
+                           
+                        </h:panelGroup>
+
+
+                        <p:outputLabel value="NOMBRE DEL TÍTULO QUE OTORGA:" style="font-weight: bold" for="titulo"/>
+
+                        <p:inputText id="titulo" value="#{carreraControlador.carrera.tituloOtorga}">
+                           
+                            <p:message for="titulo"/>
+                        </p:inputText>
+                        <p:outputLabel value="NÚMERO DE REGISTRO DEL ÓRGANO COLEGIADO:" style="font-weight: bold"/>
+
+                        <p:inputText id="numorgaco" value="#{carreraControlador.carrera.numRegOrganoColegiado}"/> 
+                        <p:outputLabel value="FECHA DE REGISTRO ÓRGANO COLIEGIADO:" style="font-weight: bold"/>
+                        <p:calendar id="txtFechaorg" value="#{carreraControlador.carrera.fechaOrganoColegiado}" locale="es" navigator="true"   showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" >
+                        </p:calendar>
+
+                        <p:outputLabel value="NÚMERO DE REGISTRO CONESUP:" style="font-weight: bold"/>
+
+                        <p:inputText id="numconesup" value="#{carreraControlador.carrera.numRegConesup}"/> 
+                        <p:outputLabel value="FECHA DE REGISTRO CONESUP:" style="font-weight: bold"/>
+                        <p:calendar id="txtFechacone" value="#{carreraControlador.carrera.fechaRegConesup}" locale="es" navigator="true"   showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" >
+                        </p:calendar>
+                        <p:outputLabel value="MODALIDAD:" for="modalidad1" style="font-weight: bold"/>
+                        <h:panelGroup>
+                            <p:message for="modalidad1"/>
+                            <p:selectOneMenu id="modalidad1" value="#{carreraControlador.carrera.modalidad}" effect="fold" editable="false" required="true" requiredMessage="Seleccione una Modalidad">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="" />
+                                <f:selectItems value="#{carreraControlador.modalidades}" />
+                            </p:selectOneMenu>                          
+                        </h:panelGroup>
+                        <p:outputLabel value="DURACIÓN DE LA CARRERA(AÑOS):" style="font-weight: bold" for="duracion"/>
+
+                        <p:inputText id="duracion" value="#{carreraControlador.carrera.duracionCarrera}">
+                            <p:message for="duracion"/>
+                        </p:inputText>
+                            <p:outputLabel value="TELÉFONO DE LA CARRERA: " style="font-weight: bold" for="txttelefono"/>
+                        <p:inputMask id="txttelefono" mask="(99) 9999-999" value="#{carreraControlador.carrera.telefono}"/>
+                        </p:panelGrid>
+                        <p:commandButton value="Actualizar" actionListener="#{carreraControlador.actualizar()}"   update="gridActualizar :frmtablaCarrera:tablaCarrera" icon="ui-icon-pencil"/>
+                     <p:commandButton value="Cerrar" update="gridActualizar" process="@this" actionListener="#{carreraControlador.cerrar()}" oncomplete="PF('dialogoDatosActualizar').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridActualizar" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+            <!-- DIALOGO VER-->
+            <p:dialog id="dialogoCarreraVer" header="Ver Datos de la Carrera" widgetVar="dialogoDatosVer" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <p:ajax event="close" listener="#{carreraControlador.handleClose}" />
+                <h:form>
+                    <p:outputPanel id="relacionCargoDetail" style="text-align:center;">
+                        <p:panelGrid columns="2" id="gridVer">
+
+                            <p:outputLabel value="UNIVERSIDAD:" style="font-weight: bold"/>
+                            <p:outputLabel value="#{carreraControlador.carrera.idFacultad.idUniversidad.nomUniversidad}"/>
+
+
+                            <p:outputLabel value="FACULTAD:" style="font-weight: bold"/>
+                            <p:outputLabel  value="#{carreraControlador.carrera.idFacultad.nomFacultad}" />
+
+                            <p:outputLabel value="CARRERA:" style="font-weight: bold"/>
+                            <p:outputLabel value="#{carreraControlador.carrera.nomCarrera}"/>
+                            <p:outputLabel value="ÁREA UNESCO" style="font-weight: bold"/>
+
+                            <p:outputLabel id="codarea" value="#{carreraControlador.carrera.areaunesco}"/>
+                            <p:outputLabel value="SUBÁREA UNESCO" style="font-weight: bold"/>
+
+                            <p:outputLabel id="codsubarea" value="#{carreraControlador.carrera.subareaunesco}"/>
+                            <p:outputLabel value="NIVEL:"/>
+                            <p:outputLabel  value="#{carreraControlador.carrera.nivel}" />
+
+                            <p:outputLabel value="NOMBRE DEL TÍTULO QUE OTORGA:" style="font-weight: bold"/>
+
+                            <p:outputLabel value="#{carreraControlador.carrera.tituloOtorga}"/>  
+                            <p:outputLabel value="NÚMERO DE REGISTRO DEL ÓRGANO COLEGIADO:" style="font-weight: bold"/>
+
+                            <p:outputLabel  value="#{carreraControlador.carrera.numRegOrganoColegiado}"/> 
+                            <p:outputLabel value="FECHA DE REGISTRO ÓRGANO COLIEGIADO:" style="font-weight: bold"/>
+
+                            <p:outputLabel id="fechaorgcol" value="#{carreraControlador.carrera.fechaOrganoColegiado}"  >
+                                <f:convertDateTime pattern="yyyy-MM-dd" />
+                            </p:outputLabel>
+                            <p:outputLabel value="NÚMERO DE REGISTRO CONESUP:" style="font-weight: bold"/>
+
+                            <p:outputLabel id="numconesup" value="#{carreraControlador.carrera.numRegConesup}"/> 
+                            <p:outputLabel value="FECHA DE REGISTRO CONESUP:" style="font-weight: bold"/>
+
+                            <p:outputLabel id="fechaCONESUP" value="#{carreraControlador.carrera.fechaRegConesup}" >
+                                <f:convertDateTime pattern="yyyy-MM-dd" />
+                            </p:outputLabel>
+                            <p:outputLabel value="MODALIDAD:" style="font-weight: bold"/>
+                            <p:outputLabel id="modalidad" value="#{carreraControlador.carrera.modalidad}" />
+
+                            <p:outputLabel value="DURACIÓN DE LA CARRERA(AÑOS):" style="font-weight: bold"/>
+
+                            <p:outputLabel  value="#{carreraControlador.carrera.duracionCarrera}"/>   
+                             <p:outputLabel value="TELÉFONO DE LA CARRERA:" style="font-weight: bold"/>
+
+                             <p:outputLabel  value="#{carreraControlador.carrera.telefono}"/>   
+                        </p:panelGrid>
+                        <p:commandButton value="Cerrar" update="gridVer" process="@this" actionListener="#{carreraControlador.cerrar()}" oncomplete="PF('dialogoDatosVer').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridVer" />
+                    </p:commandButton>
+                    </p:outputPanel>
+                </h:form>
+            </p:dialog>
+            <!-- DIALOGO CONFIRMAR-->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+        </ui:define>
+    </ui:composition>
+</html>

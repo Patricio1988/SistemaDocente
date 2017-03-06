@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+
+        <ui:define name="content">
+
+
+            <p:panel header="Administrador de  Período">
+                <h:form>
+                    <p:commandButton value="Nuevo" oncomplete="PF('dialogoPeriodoAgregar').show()" /> 
+                </h:form>
+
+                <!-- tabla periodod-->
+                <h:form id="idformPeriodo" >
+
+
+                    <p:dataTable  widgetVar="buscart" id="tablaPeriodo" value="#{periodoControlador.recuperarTodos()}" var="periodoItem" paginator="true" rows="10"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Período" />
+                                <p:inputText id="globalFilter" onkeyup="PF('buscart').filter()" style="width:150px" placeholder="Enter keyword"/>
+                            </p:outputPanel>
+                        </f:facet>
+
+
+                        <p:column headerText="NOMBRE PERÍODO:" filterBy="#{periodoItem.nombrePeriodo}">
+                            <h:outputText value="#{periodoItem.nombrePeriodo}"/>
+                        </p:column>
+                        <p:column headerText="FECHA DE INICIO" filterBy="#{periodoItem.feFinPer}">
+                            <h:outputText value="#{periodoItem.feInPer}">
+                                <f:convertDateTime pattern="dd-MMM-yyyy" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="FECHA FIN" filterBy="#{periodoItem.feFinPer}">
+                            <h:outputText value="#{periodoItem.feFinPer}">
+                                <f:convertDateTime pattern="dd-MMM-yyyy" />
+                            </h:outputText>
+                        </p:column  >
+                        <p:column headerText="ESTADO" >
+                            <h:outputText  value="INACTIVO" rendered="#{periodoItem.estadoPeriodo==false}" />
+                            <h:outputText value="ACTIVO" rendered="#{periodoItem.estadoPeriodo==true}"/>
+                        </p:column>
+
+
+                        <p:column headerText="ACCIONES">
+                            <p:commandButton  actionListener="#{periodoControlador.encontrarPeriodoID(periodoItem.idPeriodo)}" oncomplete="PF('dialogoPeriodoVER').show()" update=":dldatosVER" icon="ui-icon-search"  /> 
+
+                            <p:commandButton  actionListener="#{periodoControlador.encontrarPeriodoID(periodoItem.idPeriodo)}" oncomplete="PF('dialogoDatosActualizar').show()" update=":dldatos" icon="ui-icon-pencil"  />  
+                            <p:commandButton actionListener="#{periodoControlador.eliminar(periodoItem)}" update=":idformPeriodo:tablaPeriodo" icon="ui-icon-circle-close">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+                        </p:column>
+
+
+                    </p:dataTable>
+
+
+                </h:form>
+            </p:panel>
+            <!-- dialogo ver periodo-->
+            <p:dialog header="Ver Datos Periodo" widgetVar="dialogoPeriodoVER" id="dldatosVER" closable="false" modal="true">
+                <h:form>
+                    <p:panelGrid id="gridVer" columns="2" >
+                        <p:outputLabel value="FECHA DE INICIO DEL PERÍODO:"/>
+                        <p:outputLabel value="#{periodoControlador.periodo.feInPer}" >
+                            <f:convertDateTime pattern="dd-MMM-yyyy"/>
+                        </p:outputLabel>
+
+                        <p:outputLabel value="FECHA DE FIN DEL PERÍODO:"/>
+                        <p:outputLabel value="#{periodoControlador.periodo.feFinPer}" >
+                            <f:convertDateTime pattern="dd-MMM-yyyy"/>
+                        </p:outputLabel>
+                        <p:outputLabel value="NOMBRE PERÍODO:"/>
+                        <p:outputLabel value="#{periodoControlador.periodo.nombrePeriodo}"/>                 
+
+                    </p:panelGrid>
+                    <p:commandButton value="Cerrar" update="gridVer" process="@this" actionListener="#{periodoControlador.cerrar()}" oncomplete="PF('dialogoPeriodoVER').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridVer" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+            <!-- actualizar periodo-->
+            <p:dialog header="Actualizar Datos Período" widgetVar="dialogoDatosActualizar" id="dldatos" closable="false" modal="true">
+                <h:form>
+                    <p:panelGrid id="gridActualizar" columns="2">
+                        <p:outputLabel value="NOMBRE DEL PERÍODO:" style="font-weight: bold" for="nomPeriodo" />
+
+                        <p:inputText id="nomPeriodo" label="nombre Periodo" value="#{periodoControlador.periodo.nombrePeriodo}"  required="true" requiredMessage="El nombre del Periodo es un campo Requerido" >
+                         
+                            <p:message for="nomPeriodo"/>
+                        </p:inputText>
+
+                        <p:outputLabel value="FECHA DE INICIO DEL PERÍODO:" style="font-weight:bold" for="txtFechaInicio"/>
+
+                        <h:panelGroup>
+                               <p:message for="txtFechaInicio"/>
+                            <p:calendar id="txtFechaInicio" value="#{periodoControlador.periodo.feInPer}" locale="es" navigator="true"  onkeypress="return permite(event, 'none')" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" >
+                                <p:ajax event="dateSelect" update="ffinal" />   
+                            </p:calendar>
+                        </h:panelGroup>
+                        <p:outputLabel value="FECHA DE FIN DEL PERÍODO:" style="font-weight:bold" for="ffinal"/>
+
+                        <p:calendar id="ffinal"  value="#{periodoControlador.periodo.feFinPer}" mindate="#{periodoControlador.periodo.feInPer}" navigator="true" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy"  onkeypress=" return permite(event, 'none')" >
+                            <f:attribute name="txtFechaInicio" value="#{periodoControlador.periodo.feInPer}"/>
+                            <f:validator validatorId="validatorFechas" />
+                            <p:message for="ffinal"/>
+                        </p:calendar>
+                        <p:outputLabel value="ESTADO"/>
+                        <h:panelGroup>
+                            <p:selectBooleanButton id="value1" value="#{periodoControlador.periodo.estadoPeriodo}" onLabel="Activo" offLabel="Inactivo" style="width:100px" />
+                        </h:panelGroup>
+                    </p:panelGrid>
+
+                    <p:commandButton value="Actualizar" actionListener="#{periodoControlador.actualizar()}" update="gridActualizar :idformPeriodo:tablaPeriodo"/>
+                    <p:commandButton value="Cerrar" update="gridActualizar" process="@this" actionListener="#{periodoControlador.cerrar()}" oncomplete="PF('dialogoDatosActualizar').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridActualizar" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+            <!-- dialogo agregar periodo-->
+            <p:dialog header="Agregar Datos Período" widgetVar="dialogoPeriodoAgregar" id="dldatos1" closable="false" modal="true">
+                <h:form>
+                    <p:panelGrid  id="panelagregar" columns="2">
+                        <p:outputLabel value="NOMBRE DEL PERÍODO:" style="font-weight: bold" for="nomPeriodo" />
+
+                        <p:inputText id="nomPeriodo" label="nombre Periodo" value="#{periodoControlador.periodo.nombrePeriodo}"  >                           
+                            <p:message for="nomPeriodo"/>
+                        </p:inputText>
+
+                        <p:outputLabel value="FECHA DE INICIO DEL PERÍODO:" style="font-weight:bold" for="txtFechaInicio"/>
+
+                        <h:panelGroup>
+                            <p:calendar id="txtFechaInicio" value="#{periodoControlador.periodo.feInPer}" locale="es" navigator="true"  onkeypress="return permite(event, 'none')" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" >
+                                <p:ajax event="dateSelect" update="ffinal" />   
+                            </p:calendar>
+                            <p:message for="txtFechaInicio"/>
+
+                        </h:panelGroup>
+                        <p:outputLabel value="FECHA DE FIN DEL PERÍODO:" style="font-weight:bold" for="ffinal"/>
+
+                        <p:calendar id="ffinal"  value="#{periodoControlador.periodo.feFinPer}" mindate="#{periodoControlador.periodo.feInPer}" navigator="true" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy"  onkeypress=" return permite(event, 'none')" >
+                            <f:attribute name="txtFechaInicio" value="#{periodoControlador.periodo.feInPer}"/>
+                            <f:validator validatorId="validatorFechas" />
+                            <p:message for="ffinal"/>
+                        </p:calendar>
+                        <p:outputLabel value="ESTADO"/>
+                        <h:panelGroup>
+
+                            <p:selectBooleanButton id="value1" value="#{periodoControlador.periodo.estadoPeriodo}" onLabel="Activo" offLabel="Inactivo" style="width:100px" />
+                        </h:panelGroup>
+                    </p:panelGrid>
+
+                    <p:commandButton value="Agregar"    actionListener="#{periodoControlador.crear()}" update="panelagregar :idformPeriodo:tablaPeriodo"/>
+                    <p:commandButton value="Cerrar" update="panelagregar" process="@this" actionListener="#{periodoControlador.cerrar()}" oncomplete="PF('dialogoPeriodoAgregar').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelagregar" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+            <!-- DIALOGO CONFIRMAR-->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+
+
+
+
+        </ui:define>
+    </ui:composition>
+</html>

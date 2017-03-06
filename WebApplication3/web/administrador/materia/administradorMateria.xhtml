@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+
+        <ui:define name="content">
+
+
+            <p:panel header="Administrador de  Materias  ">
+
+                <h:form id="form1">
+
+                    <!-- TABLA Malla-->
+
+                    <p:dataTable  widgetVar="BUSCAR" id="tablaMalla" value="#{materiaControlador.listarMallasVigentes(datosControlador.usuario.authorities)}" var="mallaItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Malla" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>                            
+                        <p:column headerText="CÓDIGO:" filterBy="#{mallaItem.codMalla}">
+                            <h:outputText value="#{mallaItem.codMalla}"/>
+                        </p:column>
+                        <p:column headerText="NOMBRE" filterBy="#{mallaItem.nomMalla}">
+                            <h:outputText value="#{mallaItem.nomMalla}"/>
+                        </p:column>                      
+                        <p:column headerText="FECHA INICIO" filterBy="#{mallaItem.fechaIniMalla}">
+                            <h:outputText value="#{mallaItem.fechaIniMalla}">
+                                <f:convertDateTime pattern="DD-MMM-YYYY"/>
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="FECHA FIN" filterBy="#{mallaItem.fechaFinMalla}">
+                            <h:outputText value="#{mallaItem.fechaFinMalla}">
+                                <f:convertDateTime pattern="DD-MMM-YYYY"/>
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="CARRERA" filterBy="#{mallaItem.idCarrera.nomCarrera}">
+                            <h:outputText value="#{mallaItem.idCarrera.nomCarrera}"/>
+                        </p:column>
+                        <p:column>
+                            <p:commandButton value="Seleccionar" actionListener="#{materiaControlador.encontrarMallaID(mallaItem.idMalla)}"   update="form1:datosMalla :frmtablamateria:tablamateria " />
+
+                        </p:column>    
+
+
+                    </p:dataTable>
+                    <p:separator/>
+                    <p:panelGrid columns="4" id="datosMalla" >
+                        <f:facet name="header">
+                            Datos Malla Seleccionada
+                        </f:facet>
+
+                        <p:outputLabel value=" NOMBRE MALLA:" style="font-weight:bold"/>
+                        <p:outputLabel id="nommall" value="#{materiaControlador.malla.nomMalla}"/>
+                        <p:outputLabel value=" CÓDIGO MALLA:" style="font-weight:bold"/>
+                        <p:outputLabel id="codmall" value="#{materiaControlador.malla.codMalla}"/>
+                    </p:panelGrid>
+
+                </h:form>
+            </p:panel>
+
+
+            <p:panel header="Datos Materia">
+                <!-- TABLA CARGO DIRECTIVO-->
+                <h:form>
+
+                    <p:commandButton value="Nuevo" actionListener="#{materiaControlador.abrirDialogo()}"/>
+                </h:form>
+                <h:form id="frmtablamateria">
+                    <p:dataTable  widgetVar="BUSCAR1" id="tablamateria" value="#{materiaControlador.ListarMateriaporMalla(materiaControlador.idMalla)}" var="materiaItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+
+                        <p:column headerText="CÓDIGO MATERIA" filterBy="#{materiaItem.codMateria}">
+                            <h:outputText value="#{materiaItem.codMateria}"/>
+                        </p:column>
+                        <p:column headerText="NOMBRE MATERIA " filterBy="#{materiaItem.nomMateria}">
+                            <h:outputText value="#{materiaItem.nomMateria}"/>
+                        </p:column>  
+                        <p:column headerText="SEMESTRE: " filterBy="#{materiaItem.semestre}">
+                            <h:outputText value="#{materiaItem.semestre}"  />
+                        </p:column>    
+                        <p:column headerText="NÚMERO HORAS: " filterBy="#{materiaItem.numHoras}">
+                            <h:outputText value="#{materiaItem.numHoras}"  />
+                        </p:column> 
+                        <p:column headerText="CRÉDITOS: " filterBy="#{materiaItem.creditos}">
+                            <h:outputText value="#{materiaItem.creditos}"  />
+                        </p:column> 
+                        <p:column headerText="ACCIONES" >
+                            <p:commandButton action="#{materiaControlador.encntrarMateriaID(materiaItem.idMateria)}" update=":dialogoMateriaVer" oncomplete="PF('diologoVerDatos').show()" icon="ui-icon-search" title="Ver"/>
+                            <p:commandButton action="#{materiaControlador.encntrarMateriaID(materiaItem.idMateria)}" update=":dialogoMateriaActualizar" oncomplete="PF('dialogoActualizarDatos').show()" icon="ui-icon-pencil" title="Actualizar"/>
+                            <p:commandButton actionListener="#{materiaControlador.eliminar(materiaItem)}" update=":frmtablamateria:tablamateria" icon="ui-icon-circle-close">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+            <!-- DIALOGO AGREGAR-->
+
+            <p:dialog id="dialogoMateAgregar" header="Agregar Datos de la Materia" widgetVar="dialogoMateriaAgregar" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <h:form enctype="multipart/form-data">
+                    <p:panelGrid id="panelMateria" columns="2">
+                        
+                        <p:outputLabel value=" CÓDIGO MATERIA" style="font-weight:bold" for="codmateria"/>
+
+                        <p:inputText id="codmateria" value="#{materiaControlador.materia.codMateria}" style="width:300px;height:15px">                    
+                            <p:message for="codmateria"/>
+                        </p:inputText>
+                        <p:outputLabel value=" NOMBRE MATERIA" style="font-weight:bold" for="nommateria"/>
+
+                        <p:inputText id="nommateria" value="#{materiaControlador.materia.nomMateria}" style="width:300px;height:15px">                        
+                            <p:message for="nommateria"/>
+                        </p:inputText>
+
+                        <p:outputLabel value="SEMESTRE" style="font-weight:bold" for="idsemestre"/>
+                        <h:panelGroup>
+                            <p:message for="idsemestre"/>
+                            <p:selectOneMenu id="idsemestre" value="#{materiaControlador.materia.semestre}" required="true" requiredMessage="Seleccione un Semestre">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                <f:selectItems value="#{materiaControlador.tpSemestres}"/>
+                            </p:selectOneMenu>
+
+                        </h:panelGroup>
+                        <p:outputLabel value="NÚMERO DE HORAS" style="font-weight:bold" for="horas"/>
+
+                        <p:inputText id="horas" value="#{materiaControlador.materia.numHoras}" style="width:300px;height:15px">
+                            <p:message for="horas"/>
+                        </p:inputText>
+                        <p:outputLabel value="CRÉDITOS" style="font-weight:bold" for="creditos"/>
+
+                        <p:inputText id="creditos" value="#{materiaControlador.materia.creditos}" style="width:300px;height:15px">
+                            <p:message for="creditos"/>
+                        </p:inputText>
+
+                        <p:outputLabel value="OBSERVACIONES" style="font-weight:bold"/>
+
+                        <p:inputTextarea rows="5" cols="30" counter="display" maxlength="300" counterTemplate="{0} characters remaining." autoResize="false"  value="#{materiaControlador.materia.obserMateria}"/>
+                        <h:outputText id="display" />
+
+                    </p:panelGrid>
+                    <p:commandButton value="Agregar"  id="agregarmate"  action="#{materiaControlador.crear()}" update="panelMateria :frmtablamateria:tablamateria"  icon="ui-icon-disk" />
+                    <p:commandButton value="Cerrar" update="panelMateria" process="@this" actionListener="#{materiaControlador.cerrar()}" oncomplete="PF('dialogoMateriaAgregar').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelMateria" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+
+            <!-- DIALOGO ACTUALIZAR-->
+
+            <p:dialog id="dialogoMateriaActualizar" header="Actualizar Datos de la Materia " widgetVar="dialogoActualizarDatos" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <h:form>
+                    <p:outputPanel id="relacionCargoDetail1" style="text-align:center;">
+                        <p:panelGrid  columns="2" id="gridActualizar">
+                              <p:outputLabel value="CÓDIGO MATERIA" style="font-weight:bold" for="codmateria"/>
+
+                            <p:inputText id="codmateria" value="#{materiaControlador.materia.codMateria}" style="width:300px;height:15px">
+                                <p:message for="codmateria"/>
+                            </p:inputText>
+                            <p:outputLabel value=" NOMBRE MATERIA" style="font-weight:bold" for="nommateria"/>
+                            <p:inputText id="nommateria" value="#{materiaControlador.materia.nomMateria}" style="width:300px;height:15px">                       
+                                <p:message for="nommateria"/>
+                            </p:inputText>                        
+                            <p:outputLabel value="SEMESTRE" style="font-weight:bold"/>
+                            <h:panelGroup>
+                                <p:selectOneMenu id="idsemestre" value="#{materiaControlador.materia.semestre}" required="true" requiredMessage="Seleccione un Semestre">
+                                    <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                    <f:selectItems value="#{materiaControlador.tpSemestres}"/>
+                                </p:selectOneMenu>
+                                <p:message for="idsemestre"/>
+                            </h:panelGroup>
+                            <p:outputLabel value="NÚMERO DE HORAS" style="font-weight:bold" for="horas"/>
+
+                            <p:inputText id="horas" value="#{materiaControlador.materia.numHoras}" style="width:300px;height:15px">
+                                <p:message for="horas"/>
+                            </p:inputText>
+                            <p:outputLabel value="CRÉDITOS" style="font-weight:bold" for="creditos"/>
+
+                            <p:inputText id="creditos" value="#{materiaControlador.materia.creditos}" style="width:300px;height:15px">
+                                <p:message for="creditos"/>
+                            </p:inputText>
+
+                            <p:outputLabel value="OBSERVACIONES" style="font-weight:bold"/>
+
+                            <p:inputTextarea rows="5" cols="30" counter="display" maxlength="300" counterTemplate="{0} characters remaining." autoResize="false"  value="#{materiaControlador.materia.obserMateria}"/>
+                            <h:outputText id="display" />
+
+                        </p:panelGrid>
+
+                        <p:commandButton value="Actualizar" actionListener="#{materiaControlador.actualizar()}"   update="gridActualizar :frmtablamateria:tablamateria" icon="ui-icon-pencil"/>
+                        <p:commandButton value="Cerrar" update="gridActualizar" process="@this" actionListener="#{materiaControlador.cerrar()}" oncomplete="PF('dialogoActualizarDatos').hide();" icon="ui-icon-closethick" >
+                            <p:resetInput target="gridActualizar" />
+                        </p:commandButton>
+                    </p:outputPanel>
+                </h:form>
+            </p:dialog>
+            <!-- DIALOGO VER-->
+            <p:dialog id="dialogoMateriaVer" header="Ver Datos de la Materia" widgetVar="diologoVerDatos" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <h:form>
+                    <p:outputPanel id="relacionCargoDetail" style="text-align:center;">
+                        <p:panelGrid columns="2" id="gridVer">
+
+                            <p:outputLabel value=" NOMBRE MATERIA:" style="font-weight:bold"/>
+
+                            <p:outputLabel id="nommateria1" value="#{materiaControlador.materia.nomMateria}" style="width:300px;height:15px"/>
+                            <p:outputLabel value=" CÓDIGO MATERIA:" style="font-weight:bold"/>
+
+                            <p:outputLabel id="codmateria1" value="#{materiaControlador.materia.codMateria}" style="width:300px;height:15px"/>
+                            <p:outputLabel value="SEMESTRE:" style="font-weight:bold"/>
+
+                            <p:outputLabel id="idsemestre1" value="#{materiaControlador.materia.semestre}" />
+
+                            <p:outputLabel value="NÚMERO DE HORAS:" style="font-weight:bold"/>
+
+                            <p:outputLabel id="horas1" value="#{materiaControlador.materia.numHoras}" style="width:300px;height:15px"/>
+                            <p:outputLabel value="CRÉDITOS:" style="font-weight:bold"/>
+
+                            <p:outputLabel id="creditos1" value="#{materiaControlador.materia.creditos}" style="width:300px;height:15px"/>
+                            <p:outputLabel value="OBSERVACIONES:" style="font-weight:bold"/>
+
+                            <p:inputTextarea rows="5" cols="30" counter="display1" maxlength="300" counterTemplate="{0} characters remaining." autoResize="false"  value="#{materiaControlador.materia.obserMateria}"/>
+                            <h:outputText id="display1" />        
+                        </p:panelGrid>
+                        <p:commandButton value="Cerrar" update="gridVer" process="@this" actionListener="#{materiaControlador.cerrar()}" oncomplete="PF('diologoVerDatos').hide();" icon="ui-icon-closethick" >
+                            <p:resetInput target="gridVer" />
+                        </p:commandButton>
+                    </p:outputPanel>
+                </h:form>
+            </p:dialog>
+            <!-- DIALOGO CONFIRMAR-->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+        </ui:define>
+    </ui:composition>
+</html>

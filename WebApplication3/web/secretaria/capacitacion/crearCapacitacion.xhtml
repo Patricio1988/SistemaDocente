@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+
+        <ui:define name="content">
+
+
+            <p:panel>
+                <div style="text-align: center">
+                    <p:outputLabel value="Cursos de Actualización Científica" style="font-size: 15pt; font-weight: bold "/> 
+                </div>
+                <h:form id="form1">
+
+                    <!--  Tabla docente-->
+                    <p:dataTable  widgetVar="BUSCAR" id="tabladocente1" value="#{carreraDocenteControlador.listarDocenteCarreraVigentes(datosControlador.usuario.authorities,selecionPeriodo.idPeriodo)}" var="docenteItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Docente" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>                            
+                        <p:column headerText="CARRERA:" filterBy="#{docenteItem.idCarrera.nomCarrera}">
+                            <h:outputText value="#{docenteItem.idCarrera.nomCarrera}"/>
+                        </p:column>
+                        <p:column headerText="PRIMER APELLIDO" filterBy="#{docenteItem.idDocente.apellidoPaterno}">
+                            <h:outputText value="#{docenteItem.idDocente.apellidoPaterno}"/>
+                        </p:column>
+                        <p:column headerText="SEGUNDO APELLIDO" filterBy="#{docenteItem.idDocente.apellidoMaterno}">
+                            <h:outputText value="#{docenteItem.idDocente.apellidoMaterno}"/>
+                        </p:column>
+                        <p:column headerText="NOMBRES" filterBy="#{docenteItem.idDocente.nombres}">
+                            <h:outputText value="#{docenteItem.idDocente.nombres}"/>
+                        </p:column>
+                        <p:column headerText="IDENTIFICACIÓN" filterBy="#{docenteItem.idDocente.identificacion}">
+                            <h:outputText value="#{docenteItem.idDocente.identificacion}"/>
+                        </p:column>
+                        <p:column>
+                            <p:commandButton value="SELECCIONAR" action="#{capacitacionControlador.recuperardatosCarrreraDocenteId(docenteItem.idCarreraDocente)}"  update=":form1:datosdocente1 :frmtablacapac:tablaCapacitacion" />
+
+                        </p:column>    
+
+                    </p:dataTable>
+                    <p:separator/>
+                    <!--  Datos del docente-->
+                    <p:panelGrid columns="6" id="datosdocente1" >
+                        <f:facet name="header">
+                            Datos Docente Seleccionado
+                        </f:facet>
+                        <p:outputLabel value="NOMBRE:" style="font-weight:bold"/> 
+                        <p:outputLabel id="apepater" value="#{capacitacionControlador.carreraDocente.idDocente.apellidoPaterno} #{capacitacionControlador.carreraDocente.idDocente.apellidoMaterno} #{capacitacionControlador.carreraDocente.idDocente.nombres}" > </p:outputLabel>                  
+                        <p:outputLabel value="IDENTIFICACIÓN:" style="font-weight:bold"/>
+                        <p:outputLabel id="identifi" value="#{capacitacionControlador.numeroCedula}"/>
+                        <p:outputLabel value="CARRERA" style="font-weight:bold"/>
+                        <p:outputLabel id="idCarrer" value="#{capacitacionControlador.carreraDocente.idCarrera.nomCarrera}"/>
+                      
+                    </p:panelGrid>
+
+                </h:form>
+            </p:panel>
+
+            <p:panel header="Cursos de Capacitación Docente">
+                <!--  Dialogo nueca capacitacion-->
+                <h:form>
+
+                    <p:commandButton value="Nuevo" action="#{capacitacionControlador.abrirDialogo()}"/>
+                </h:form>
+                <!--  tabla capacitacion-->
+                <h:form id="frmtablacapac">
+                    <p:dataTable  widgetVar="BUSCARCURSO" id="tablaCapacitacion" value="#{capacitacionControlador.listaCapacitacionDocente()}" var="capacitacionItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50" >
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Curso" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCARCURSO').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>                            
+                        <p:column headerText="NOMBRE:" filterBy="#{capacitacionItem.nomEvento}">
+                            <h:outputText value="#{capacitacionItem.nomEvento}"/>
+                        </p:column>
+                        <p:column headerText="INSTITUCIÓN" filterBy="#{capacitacionItem.nomInstitucion}">
+                            <h:outputText value="#{capacitacionItem.nomInstitucion}"/>
+                        </p:column>
+                        <p:column headerText="HORAS" filterBy="#{capacitacionItem.numHoras}">
+                            <h:outputText value="#{capacitacionItem.numHoras}"/>
+                        </p:column>
+                        <p:column headerText="FECHA DE INICIO" filterBy="#{capacitacionItem.fechaInicioEvento}">
+                            <h:outputText value="#{capacitacionItem.fechaInicioEvento}">
+                                <f:convertDateTime pattern="dd-MMM-yyyy" /> 
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="FECHA DE FIN" filterBy="#{capacitacionItem.fechaFinEvento}">
+                            <h:outputText value="#{capacitacionItem.fechaFinEvento}">
+                                <f:convertDateTime pattern="dd-MMM-yyyy" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="TIPO DE CURSO" filterBy="#{capacitacionItem.tipoCurso}">
+                            <h:outputText value="#{capacitacionItem.tipoCurso}"/>
+                        </p:column>
+
+                        <p:column headerText="ACCIONES" >
+                            <p:commandButton action="#{capacitacionControlador.recuperarCapcitacionporID(capacitacionItem.idCapacitacion)}" update=":dialogoCapcitacionVer" oncomplete="PF('dialogoDatosVer').show()" icon="ui-icon-search" title="Ver"/>
+                            <p:commandButton action="#{capacitacionControlador.recuperarCapcitacionporID(capacitacionItem.idCapacitacion)}" update=":dialogoCapacitaActualizar" oncomplete="PF('dialogoDatosActualizar').show()" icon="ui-icon-pencil" title="Actualizar"/>
+                            <p:commandButton actionListener="#{capacitacionControlador.eliminar(capacitacionItem)}" update=":frmtablacapac:tablaCapacitacion" icon="ui-icon-circle-close">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+                            
+                            
+
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+            <!--  nueva capacitación-->
+            <p:dialog id="dialogoCapacitaAgregar" header="Agregar Datos Capacitación" widgetVar="dialogoCapacitacionAgregar" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+
+
+                <h:form enctype="multipart/form-data">
+                    <p:panelGrid id="panelCapacitacion" columns="2">
+
+
+                        <p:outputLabel value="NOMBRE DEL EVENTO:" for="eventocapacitacion" style="font-weight:bold"/>
+                        <p:inputText id="eventocapacitacion" value="#{capacitacionControlador.capacitacion.nomEvento}">
+                            <p:message for="eventocapacitacion"/>
+                        </p:inputText>
+                        <p:outputLabel value="FECHA DE INICIO DEL EVENTO:" style="font-weight:bold" for="txtFechaInicio"/>
+                        <h:panelGroup>
+                            <p:message for="txtFechaInicio"/>
+                            <p:calendar id="txtFechaInicio" value="#{capacitacionControlador.capacitacion.fechaInicioEvento}" locale="es" navigator="true"  onkeypress="return permite(event, 'none')" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" >
+                                <p:ajax event="dateSelect" update="ffinal" />   
+                            </p:calendar>
+                        </h:panelGroup>
+                        <p:outputLabel value="FECHA DE FIN DEL EVENTO:" style="font-weight:bold" for="ffinal"/>
+                        <h:panelGroup>
+                            <p:message for="ffinal"/>
+                            <p:calendar id="ffinal"  value="#{capacitacionControlador.capacitacion.fechaFinEvento}" mindate="#{capacitacionControlador.capacitacion.fechaInicioEvento}" navigator="true" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" onkeypress=" return permite(event, 'none')" >
+                                <f:attribute name="txtFechaInicio" value="#{capacitacionControlador.capacitacion.fechaInicioEvento}"/>
+                                <f:validator validatorId="validatorFechas" />
+                            </p:calendar>
+                        </h:panelGroup>
+                        <p:outputLabel value="NOMBRE DE LA INSTITUCIÓN DEL EVENTO:" for="txtnombreinstitucioncapacitacion" style="font-weight:bold"/>
+                        <p:inputText id="txtnombreinstitucioncapacitacion" value="#{capacitacionControlador.capacitacion.nomInstitucion}">                
+                            <p:message for="txtnombreinstitucioncapacitacion"/>
+                        </p:inputText>
+                        <p:outputLabel value="NÚMERO DE HORAS:" for="numhorascapciatcion" style="font-weight:bold"/>
+                        <p:inputText id="numhorascapciatcion" value="#{capacitacionControlador.capacitacion.numHoras}">
+                            <p:message for="numhorascapciatcion"/>
+                        </p:inputText>
+                        <p:outputLabel value=" TIPO DE CURSO:" style="font-weight:bold" for="idtpCursocapacitacion"/>
+                        <h:panelGroup>
+                            <p:message for="idtpCursocapacitacion"/>
+                            <p:selectOneMenu id="idtpCursocapacitacion" value="#{capacitacionControlador.capacitacion.tipoCurso}"  >
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                <f:selectItems value="#{capacitacionControlador.tiposCursos}"/>
+                            </p:selectOneMenu>
+                        </h:panelGroup>
+                        <p:outputLabel value=" LOCALIDAD:" style="font-weight:bold" for="txtlocalidad"/>
+                        <h:panelGroup>
+                            <p:message for="txtlocalidad"/>
+                            <p:selectOneMenu id="txtlocalidad" value="#{capacitacionControlador.capacitacion.localidad}"  >
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                <f:selectItems value="#{capacitacionControlador.localidadesCursos}"/>
+                            </p:selectOneMenu>
+                        </h:panelGroup>
+                        <p:outputLabel value="PAÍS:" style="font-weight:bold" for="txtpais" />    
+                        <h:panelGroup>
+                            <p:selectOneMenu  id="txtpais" value="#{capacitacionControlador.capacitacion.paisActualizacion}" style="width:125px" filter="true">
+                                <f:selectItems value="#{paisControler.recuperarTodos()}" var="itempais" itemLabel="#{itempais.nomPais}" itemValue="#{itempais.nomPais}"></f:selectItems>
+                            </p:selectOneMenu>
+                            <p:message for="txtpais"/>
+                        </h:panelGroup>                     
+                        <p:outputLabel value="OBSERVACIONES:" style="font-weight:bold"/>
+                        <p:inputTextarea rows="5" cols="30"  maxlength="200" counterTemplate="{0}  maximo de carateres." autoResize="false"  value="#{capacitacionControlador.capacitacion.obsCapacitacion}"/>
+                    </p:panelGrid>
+                    <p:commandButton  value="Agregar" id="agregarcapa" actionListener="#{capacitacionControlador.crear()}" update="panelCapacitacion :frmtablacapac:tablaCapacitacion"  icon="ui-icon-disk" />
+                    <p:commandButton value="Cerrar" update="panelCapacitacion" process="@this" actionListener="#{capacitacionControlador.cerrar()}" oncomplete="PF('dialogoCapacitacionAgregar').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelCapacitacion" />
+                    </p:commandButton>
+
+
+                </h:form>
+            </p:dialog>
+
+            <!--  actualizar  capacitación-->
+
+            <p:dialog id="dialogoCapacitaActualizar" header="Actualizar Datos Capacitación" widgetVar="dialogoDatosActualizar" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+             
+                <h:form enctype="multipart/form-data">
+                    <p:outputPanel id="relacionlaboralDetail1" style="text-align:center;">
+                        <p:panelGrid  columns="2" id="gridActualizar">
+
+                            <p:outputLabel value="NOMBRE DEL EVENTO: " for="eventocapacitacion" style="font-weight:bold"/>
+                            <p:inputText id="eventocapacitacion" value="#{capacitacionControlador.capacitacion.nomEvento}">
+                                <p:message for="eventocapacitacion"/>
+                            </p:inputText>
+                            <p:outputLabel value="FECHA DE INICIO DEL EVENTO: " style="font-weight:bold" for="txtFechaInicio"/>
+                            <h:panelGroup>
+                                <p:message for="txtFechaInicio"/>
+                                <p:calendar id="txtFechaInicio" value="#{capacitacionControlador.capacitacion.fechaInicioEvento}" locale="es" navigator="true"  onkeypress="return permite(event, 'none')" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy"  effect="fadeIn" effectDuration="100">
+                                    <p:ajax event="dateSelect" update="ffinal" />   
+                                </p:calendar>
+                            </h:panelGroup>
+                            <p:outputLabel value="FECHA DE FIN DEL EVENTO:" style="font-weight:bold" for="ffinal"/>
+                            <h:panelGroup>
+                                <p:message for="ffinal"/>
+                                <p:calendar id="ffinal"  value="#{capacitacionControlador.capacitacion.fechaFinEvento}" mindate="#{capacitacionControlador.capacitacion.fechaInicioEvento}" navigator="true" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" onkeypress=" return permite(event, 'none')" effect="fadeIn" effectDuration="100" >
+                                    <f:attribute name="txtFechaInicio" value="#{capacitacionControlador.capacitacion.fechaInicioEvento}"/>
+                                    <f:validator validatorId="validatorFechas" />
+                                </p:calendar>
+                            </h:panelGroup>
+                            <p:outputLabel value="NOMBRE DE LA INSTITUCIÓN DEL EVENTO:" for="txtnombreinstitucioncapacitacion" style="font-weight:bold"/>
+
+                            <p:inputText id="txtnombreinstitucioncapacitacion" value="#{capacitacionControlador.capacitacion.nomInstitucion}">             
+                                <p:message for="txtnombreinstitucioncapacitacion"/>
+                            </p:inputText>
+                            <p:outputLabel value="NÚMERO DE HORAS:" for="numhorascapciatcion" style="font-weight:bold"/>
+                            <p:inputText id="numhorascapciatcion" value="#{capacitacionControlador.capacitacion.numHoras}">
+                                <p:message for="numhorascapciatcion"/>
+                            </p:inputText>
+                            <p:outputLabel value=" TIPO DE CURSO:" style="font-weight:bold" for="idtpCursocapacitacion"/>
+                            <h:panelGroup>
+                                <p:message for="idtpCursocapacitacion"/>
+                                <p:selectOneMenu id="idtpCursocapacitacion" value="#{capacitacionControlador.capacitacion.tipoCurso}" required="true" requiredMessage="Seleccione un el Tipo de Curso" >
+                                    <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                    <f:selectItems value="#{capacitacionControlador.tiposCursos}"/>
+                                </p:selectOneMenu>                               
+                            </h:panelGroup>
+                            <p:outputLabel value=" LOCALIDAD:" style="font-weight:bold"/>
+                            <h:panelGroup>
+                                <p:message for="txtlocalidad"/>
+                                <p:selectOneMenu id="txtlocalidad" value="#{capacitacionControlador.capacitacion.localidad}" >
+                                    <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                    <f:selectItems value="#{capacitacionControlador.localidadesCursos}"/>
+                                </p:selectOneMenu>                            
+                            </h:panelGroup>
+                            <p:outputLabel value="PAÍS:" style="font-weight:bold"  for="txtpais"/>    
+                            <h:panelGroup>
+                                       <p:message for="txtpais"/>
+                                       <p:selectOneMenu  id="txtpais" value="#{capacitacionControlador.capacitacion.paisActualizacion}" style="width:125px" filter="true">
+                                    <f:selectItems value="#{paisControler.recuperarTodos()}" var="itempais" itemLabel="#{itempais.nomPais}" itemValue="#{itempais.nomPais}"></f:selectItems>
+                                </p:selectOneMenu>
+                         
+                            </h:panelGroup>
+                            
+
+
+                            <p:outputLabel value="OBSERVACIONES:" style="font-weight:bold"/>
+                            <p:inputTextarea rows="5" cols="30"  maxlength="200" counterTemplate="{0}  maximo de carateres." autoResize="false"  value="#{capacitacionControlador.capacitacion.obsCapacitacion}"/>
+
+
+
+                        </p:panelGrid>
+                        <p:commandButton  value="Actualizar" actionListener="#{capacitacionControlador.actualizar()}"   update="gridActualizar :frmtablacapac:tablaCapacitacion" icon="ui-icon-pencil"/>
+                        <p:commandButton value="Cerrar" update="gridActualizar" process="@this" actionListener="#{capacitacionControlador.cerrar()}" oncomplete="PF('dialogoDatosActualizar').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridActualizar" />
+                    </p:commandButton>
+
+                    </p:outputPanel>
+                </h:form>
+            </p:dialog>
+            <!--  ver capacitación-->
+            <p:dialog id="dialogoCapcitacionVer" header="Ver Datos Capacitación" widgetVar="dialogoDatosVer" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+
+                <h:form>
+                    <p:outputPanel id="relacionlaboralDetail" style="text-align:center;">
+                        <p:panelGrid columns="2" id="gridVer">
+
+                            <p:outputLabel value="NOMBRE DEL EVENTO:" style="font-weight:bold"/>
+                            <p:outputLabel  value="#{capacitacionControlador.capacitacion.nomEvento}"/>
+                            <p:outputLabel value="FECHA DE INICIO DEL EVENTO:" style="font-weight:bold"/>
+
+                            <p:outputLabel  value="#{capacitacionControlador.capacitacion.fechaInicioEvento}"   >
+                                <f:convertDateTime pattern="yyyy-MM-dd"/>
+                            </p:outputLabel>
+                            <p:outputLabel value="FECHA DE FIN DEL EVENTO:" style="font-weight:bold"/>
+
+                            <p:outputLabel value="#{capacitacionControlador.capacitacion.fechaFinEvento}"  >
+                                <f:convertDateTime pattern="yyyy-MM-dd"/>
+                            </p:outputLabel>
+                            <p:outputLabel value="NOMBRE DE LA INSTITUCIÓN DEL EVENTO:" style="font-weight:bold"/>
+                            <p:outputLabel value="#{capacitacionControlador.capacitacion.nomInstitucion}"/>
+                            <p:outputLabel value="NÚMERO DE HORAS:" style="font-weight:bold"/>
+                            <p:outputLabel value="#{capacitacionControlador.capacitacion.numHoras}"/>
+                            <p:outputLabel value=" TIPO DE CURSO:" style="font-weight:bold"/>
+                            <p:outputLabel value="#{capacitacionControlador.capacitacion.tipoCurso}" />
+
+                            <p:outputLabel value=" LOCALIDAD:" style="font-weight:bold"/>
+                            <p:outputLabel  value="#{capacitacionControlador.capacitacion.localidad}"/>
+
+                            <p:outputLabel value="PAÍS:" style="font-weight:bold"/>
+                            <p:outputLabel value="#{capacitacionControlador.capacitacion.paisActualizacion}"/>
+                            <p:outputLabel value="NOMBRE DEL ARCHIVO:" style="font-weight:bold"/>
+                            <p:outputLabel value="#{capacitacionControlador.capacitacion.nombreDocCapacitacion}"/>
+                            <p:outputLabel value="OBSERVACIONES:" style="font-weight:bold"/>
+                            <p:inputTextarea rows="5" cols="30"  maxlength="200" counterTemplate="{0}  maximo de carateres." autoResize="false"  value="#{capacitacionControlador.capacitacion.obsCapacitacion}"/>
+                        </p:panelGrid>
+                         <p:commandButton value="Cerrar" update="gridVer" process="@this" actionListener="#{capacitacionControlador.cerrar()}" oncomplete="PF('dialogoDatosVer').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridVer" />
+                    </p:commandButton>
+                    </p:outputPanel>
+                </h:form>
+            </p:dialog>
+            <!--  Dialogo confirmacion-->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+        </ui:define>
+    </ui:composition>
+</html>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+
+        <ui:define name="content">
+
+            <center>
+                <p:panel header="Administración Datos Categoría" style= "width: 530px">
+
+                    <h:form>
+                        <div style="text-align: right">
+                            <p:commandButton value="Nuevo" oncomplete="PF('dialogoCategoriaAgregar').show()" /> 
+                        </div>
+                    </h:form>
+                    <h:form id="idformCate" >
+                        <p:dataTable  widgetVar="buscart" id="tablaCategoria" value="#{categoriaControlador.recuperarTodos()}" var="categoriaItem" paginator="true" rows="10"
+                                      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                      rowsPerPageTemplate="5,10,15">
+                            <f:facet name="header">
+                                <p:outputPanel>
+                                    <h:outputText value="Buscar Categoría" />
+                                    <p:inputText id="globalFilter" onkeyup="PF('buscart').filter()" style="width:300px" placeholder="Enter keyword"/>
+                                </p:outputPanel>
+                            </f:facet>
+
+                            <p:column headerText="NOMBRE CATEGORÍA" filterBy="#{categoriaItem.nomCategoria}" >
+                                <h:outputText value="#{categoriaItem.nomCategoria}"/>
+                            </p:column>
+                            <p:column headerText="ACCIONES" style="width: 100px">
+                                <p:commandButton  actionListener="#{categoriaControlador.buscarCategoriadID(categoriaItem.idCategoria)}" oncomplete="PF('dialogoCategoriaVer').show()" update=":dldatosVER" icon="ui-icon-search"  /> 
+                                <p:commandButton  actionListener="#{categoriaControlador.buscarCategoriadID(categoriaItem.idCategoria)}" oncomplete="PF('dialogoCategoriaActualizar').show()" update=":dldatos" icon="ui-icon-pencil"  />  
+                                <p:commandButton actionListener="#{categoriaControlador.eliminar(categoriaItem)}" update=":idformCate:tablaCategoria" icon="ui-icon-circle-close">
+                                    <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                                </p:commandButton>                          
+                            </p:column>
+                        </p:dataTable>.
+
+
+                    </h:form>
+                </p:panel>
+            </center>
+            <p:dialog header="Ver Datos Categoría" widgetVar="dialogoCategoriaVer" id="dldatosVER" modal="true" closable="false">
+
+                <h:form>
+                    <p:panelGrid id="gridVer" columns="2">
+                        <p:outputLabel value="CÓDIGO:" style="font-weight: bold"  />
+                        <p:outputLabel value="#{categoriaControlador.categoria.idCategoria}"/>
+                        <p:outputLabel value="NOMBRE CATEGORÍA:" style="font-weight: bold"  />
+                        <p:outputLabel value="#{categoriaControlador.categoria.nomCategoria}"/>
+                    </p:panelGrid>
+                    <p:commandButton value="Cerrar" update="gridVer" process="@this" actionListener="#{categoriaControlador.cerrar()}" oncomplete="PF('dialogoCategoriaVer').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridVer" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog header="Actualizar Datos Categoría" widgetVar="dialogoCategoriaActualizar" id="dldatos" modal="true" closable="false">
+
+                <h:form>
+                    <p:panelGrid id="gridActualizar" columns="2">
+                        <p:outputLabel value="NOMBRE CATEGORÍA:"  style="font-weight: bold" for="txtnomcategoria"/>
+                        <p:inputText id="txtnomcategoria" value="#{categoriaControlador.categoria.nomCategoria}">                         
+                            <p:message for="txtnomcategoria"/>                
+                        </p:inputText>
+
+                    </p:panelGrid>
+                    <p:commandButton value="Actualizar" actionListener="#{categoriaControlador.actualizar()}"  update="gridActualizar :idformCate:tablaCategoria"/>
+                    <p:commandButton value="Cerrar" update="gridActualizar" process="@this" actionListener="#{categoriaControlador.cerrar()}" oncomplete="PF('dialogoCategoriaActualizar').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridActualizar" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+            <p:dialog header="Agregar Datos Categoría" widgetVar="dialogoCategoriaAgregar" id="dldatos1" modal="true" closable="false">
+
+                <h:form>
+                    <p:panelGrid  id="panelagregar" columns="2">
+                        <p:outputLabel value="NOMBRE CATEGORÍA:"  style="font-weight: bold" for="txtnomcategoria"/>
+                        <p:inputText id="txtnomcategoria" value="#{categoriaControlador.categoria.nomCategoria}">
+                            <p:message for="txtnomcategoria"/>                
+                        </p:inputText>
+
+                    </p:panelGrid>
+                    <p:commandButton value="Agregar"  actionListener="#{categoriaControlador.crear()}"  update="panelagregar :idformCate:tablaCategoria"/>
+                    <p:commandButton value="Cerrar" update="panelagregar" process="@this" actionListener="#{categoriaControlador.cerrar()}" oncomplete="PF('dialogoCategoriaAgregar').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelagregar" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+
+
+        </ui:define>
+    </ui:composition>
+</html>

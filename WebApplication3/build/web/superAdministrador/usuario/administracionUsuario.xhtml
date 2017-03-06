@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+
+        <ui:define name="content">
+            <h:form>
+
+                <p:commandButton value="Nuevo" oncomplete="PF('DialogoAgregarUsuario').show()"/>
+            </h:form>
+
+            <h:form id="form">
+
+                <p:panel header="Administración Usuario">            
+                    <p:dataTable  widgetVar="BUSCAR" id="tabladoUsuario" value="#{usuarioControlador.recuperarTodos()}" var="usuarioItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Usuario" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>
+                        <p:column headerText="FACULTAD" filterBy="#{usuarioItem.idCarrera.idFacultad.nomFacultad}">
+                            <h:outputText value="#{usuarioItem.idCarrera.idFacultad.nomFacultad}" />
+                        </p:column>
+                        <p:column headerText="CARRERRA" filterBy="#{usuarioItem.idCarrera.nomCarrera}">
+                            <h:outputText value="#{usuarioItem.idCarrera.nomCarrera}" />
+                        </p:column> 
+                    
+                        <p:column headerText="NOMBRE USUARIO" filterBy="#{usuarioItem.nombreUsuario}">
+                            <h:outputText value="#{usuarioItem.nombreUsuario}" />
+                        </p:column>  
+                        <p:column headerText="APELLIDO USUARIO" filterBy="#{usuarioItem.apellidoUsuario}">
+                            <h:outputText value="#{usuarioItem.apellidoUsuario}" />
+                        </p:column>
+                        <p:column headerText="NICK NAME" >
+                            <h:outputText value="#{usuarioItem.username}" />
+                        </p:column>
+                        <p:column headerText="FECHA DE REGISTRO" filterBy="#{usuarioItem.fechaRegistro}">
+                            <h:outputText value="#{usuarioItem.fechaRegistro}">
+                                <f:convertDateTime pattern="dd-MMM-yyyy" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="ESTADO" >
+                            <h:outputText value="ACTIVO" rendered="#{usuarioItem.enabled==true}"/>
+                            <h:outputText value="INACTIVO" rendered="#{usuarioItem.enabled==false}"/>
+                        </p:column>                   
+                        <p:column headerText="ACCIONES">
+                            <p:commandButton   action="#{usuarioControlador.encontrarUsuario(usuarioItem.ci)}" update=":form:usuarioItemDetail1" oncomplete="PF('usuarioItemDialog1').show()" icon="ui-icon-search" title="Ver"/>               
+
+                            <p:commandButton  action="#{usuarioControlador.encontrarUsuario(usuarioItem.ci)}" update=":frmActualizarUsuario:usuarioItemDetail" oncomplete="PF('usuarioItemDialog').show()" icon="ui-icon-pencil" title="Actualizar"/>   
+                        </p:column>
+                    </p:dataTable>
+
+
+                    <!-- Ver Usuario-->
+                    <p:dialog header="Ver Datos Usuario" widgetVar="usuarioItemDialog1" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                        <p:outputPanel id="usuarioItemDetail1" style="text-align:center;">
+                            <p:panelGrid  id="gridVer" columns="2" rendered="#{not empty usuarioControlador.usuario}" columnClasses="label,value">
+
+                                <p:outputLabel value="FACULTAD:"/>
+                                <p:outputLabel value="#{usuarioControlador.usuario.idCarrera.idFacultad.nomFacultad}"/>
+
+
+                                <p:outputLabel value="CARRERA:"/>
+                                <p:outputLabel id="idcarrera1" value="#{usuarioControlador.usuario.idCarrera.nomCarrera}" />
+
+
+
+                                <p:outputLabel value="NOMBRE USUARIO:"/>
+
+                                <p:outputLabel id="nomUsu1" value="#{usuarioControlador.usuario.nombreUsuario}"/>
+                                <p:outputLabel value="APELLIDO USUARIO:"/>
+
+                                <p:outputLabel  id="apeusu1" value="#{usuarioControlador.usuario.apellidoUsuario}"/>     
+                                <p:outputLabel value="CEDULA:"/>
+
+                                <p:outputLabel  id="cedula" value="#{usuarioControlador.usuario.ci}"/>  
+
+                                <p:outputLabel value="NICK NAME:"/>
+
+                                <p:outputLabel  value="#{usuarioControlador.usuario.username}"/>
+                               
+
+                                <p:outputLabel value="CORREO:"/>
+
+                                <p:outputLabel  value="#{usuarioControlador.usuario.correo}"/>
+
+                                <p:outputLabel value="FECHA DE REGISTRO:"/> 
+                                <p:outputLabel  value="#{usuarioControlador.usuario.fechaRegistro}" >
+                                    <f:convertDateTime  pattern="dd/MM/yyyy"/>
+                                </p:outputLabel>           
+                                <p:outputLabel value="VIGENCIA:"/>
+                                <p:selectBooleanCheckbox value="#{usuarioControlador.usuario.enabled}" />                                 
+                            </p:panelGrid>
+                            <p:commandButton value="Cerrar" update="gridVer" process="@this" actionListener="#{usuarioControlador.cerrar()}" oncomplete="PF('usuarioItemDialog1').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridVer" />
+                    </p:commandButton>
+                        </p:outputPanel>
+                    </p:dialog>
+
+
+
+                </p:panel>
+            </h:form>
+            <!-- dialogo Actualizar-->
+            <p:dialog header="Actualizar Datos Usuario" widgetVar="usuarioItemDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <h:form id="frmActualizarUsuario" >
+                    
+                    <p:outputPanel id="usuarioItemDetail" style="text-align:center;">
+                        <p:panelGrid id="gridActualizar" columns="2" >
+
+                            <p:outputLabel value="FACULTAD:" for="idfacultad"/>
+                            <h:panelGroup>
+                                <p:message for="idfacultad"/>
+                                <p:selectOneMenu id="idfacultad" value="#{usuarioControlador.idFacultad}" required="true" requiredMessage="Seleccione una Facultad">
+                                    <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                    <f:selectItems value="#{usuarioControlador.itemsFacultad}" >
+                                    </f:selectItems>
+                                    <p:ajax event="change" listener="#{usuarioControlador.getCarreras}" update="idcarrera"  />
+
+                                </p:selectOneMenu>
+                            </h:panelGroup>
+
+                            <p:outputLabel value="CARRERA:" for="idcarrera"/>
+                            <h:panelGroup>
+                                <p:message for="idcarrera"/>
+                                <p:selectOneMenu id="idcarrera" value="#{usuarioControlador.idCarrera}" disabled="#{usuarioControlador.estadoComboBox}" required="true" requiredMessage="Seleccione una Carrera">
+                                    <f:selectItem itemLabel="SELECCIONE" itemValue=" " />
+                                    <f:selectItems value="#{usuarioControlador.itemsCarrera}"/>
+                                </p:selectOneMenu>
+                            </h:panelGroup>
+                            <p:outputLabel value="NOMBRE USUARIO:" for="nomUsu"/>
+
+                            <p:inputText id="nomUsu" value="#{usuarioControlador.usuario.nombreUsuario}">
+                                <p:message for="nomUsu"/>
+                            </p:inputText>
+                            <p:outputLabel value="APELLIDO USUARIO:" for="apeusu"/>
+
+                            <p:inputText  id="apeusu" value="#{usuarioControlador.usuario.apellidoUsuario}">                  
+                                <p:message for="apeusu"/>
+                            </p:inputText>
+                              <p:outputLabel value="CEDULA:" for="txtcedula"/>
+
+                            <p:inputText  id="txtcedula" value="#{usuarioControlador.usuario.ci}">                  
+                                <p:message for="txtcedula"/>
+                            </p:inputText>
+                            <p:outputLabel value="NICK NAME:" for="nick"/>
+
+                            <p:inputText id="nick" value="#{usuarioControlador.usuario.username}">
+                                <p:message for="nick"/>     
+                            </p:inputText>
+                               <p:outputLabel value="CONTRASEÑA:" for="pass" />
+
+                               <p:inputText id="pass"  value="#{usuarioControlador.usuario.password}">
+                                <p:message for="pass"/>     
+                            </p:inputText>
+                            <p:outputLabel value="CORREO:" for="email"/>
+
+                            <p:inputText id="email" value="#{usuarioControlador.usuario.correo}" title="Ejemplo@gmail.com" >
+                                <p:message for="email"/>     
+                            </p:inputText>
+
+                            <p:outputLabel value="FECHA DE REGISTRO:" for="fecha"/>  
+                            <h:panelGroup>
+                                <p:calendar id="fecha" value="#{usuarioControlador.usuario.fechaRegistro}"  title="Ejemplo:dd/MM/yyyy" locale="de" navigator="true" pattern="dd-MM-yyyy"  />
+                                <p:message for="fecha"/>
+                            </h:panelGroup>
+                            <p:outputLabel value="VIGENCIA:"/>
+                            <h:panelGroup>
+
+                                <p:selectBooleanButton id="value1" value="#{usuarioControlador.usuario.enabled}" onLabel="Activo" offLabel="Inactivo" style="width:100px" />
+                            </h:panelGroup>
+
+
+                        </p:panelGrid>
+                        <p:commandButton value="Actualizar" id="withIcon" action="#{usuarioControlador.actualizar()}"  update="gridActualizar :form:tabladoUsuario" icon="ui-icon-pencil" />                    
+                      <p:commandButton value="Cerrar" update="gridActualizar" process="@this" actionListener="#{usuarioControlador.cerrar()}" oncomplete="PF('usuarioItemDialog').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridActualizar" />
+                    </p:commandButton>
+                    </p:outputPanel>
+                </h:form>
+            </p:dialog>
+            <!-- Agregar Usuario-->
+            <p:dialog header="Agregar Datos Usuario" widgetVar="DialogoAgregarUsuario" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <h:form>
+                    
+             
+                        <p:panelGrid id="panelagregarusuario"  columns="2" >
+
+                            <p:outputLabel value="FACULTAD:" for="idfacultad"/>
+                            <h:panelGroup>
+                                <p:message for="idfacultad"/>
+                                <p:selectOneMenu id="idfacultad" value="#{usuarioControlador.idFacultad}" required="true" requiredMessage="Seleccione una Facultad">
+                                    <f:selectItem itemLabel="SELECCIONE" itemValue=" " />
+                                    <f:selectItems value="#{usuarioControlador.itemsFacultad}" >
+                                    </f:selectItems>
+                                    <p:ajax event="change" listener="#{usuarioControlador.getCarreras}" update="idcarrera"  />
+
+                                </p:selectOneMenu>
+                            </h:panelGroup>
+
+                            <p:outputLabel value="CARRERA:" for="idcarrera"/>
+                            <h:panelGroup>
+                                <p:message for="idcarrera"/>
+                                <p:selectOneMenu id="idcarrera" value="#{usuarioControlador.idCarrera}" disabled="#{usuarioControlador.estadoComboBox}" required="true" requiredMessage="Seleccione una Carrera">
+                                    <f:selectItem itemLabel="SELECCIONE" itemValue=" " />
+                                    <f:selectItems value="#{usuarioControlador.itemsCarrera}"/>
+                                </p:selectOneMenu>
+                            </h:panelGroup>
+
+                            <p:outputLabel value="NOMBRE USUARIO:" for="nomUsu"/>
+
+                            <p:inputText id="nomUsu" value="#{usuarioControlador.usuario.nombreUsuario}">
+                                <p:message for="nomUsu"/>
+                            </p:inputText>
+                            <p:outputLabel value="APELLIDO USUARIO:" for="apeusu"/>
+
+                            <p:inputText  id="apeusu" value="#{usuarioControlador.usuario.apellidoUsuario}">                  
+                                <p:message for="apeusu"/>
+                            </p:inputText>
+                            <p:outputLabel value="CEDULA:" for="txtcedula"/>
+
+                            <p:inputText  id="txtcedula" value="#{usuarioControlador.usuario.ci}">                  
+                                <p:message for="txtcedula"/>
+                            </p:inputText>
+                            <p:outputLabel value="NICK NAME:" for="nick"/>
+
+                            <p:inputText id="nick" value="#{usuarioControlador.usuario.username}">
+                                <p:message for="nick"/>     
+                            </p:inputText>
+                            <p:outputLabel value="CONTRASEÑA:" for="pass" />
+
+                            <p:inputText id="pass"  value="#{usuarioControlador.usuario.password}">
+                                <p:message for="pass"/>     
+                            </p:inputText>
+
+                            <p:outputLabel value="CORREO:" for="email"/>
+
+                            <p:inputText id="email" value="#{usuarioControlador.usuario.correo}" title="Ejemplo@gmail.com" >
+                          
+                                <p:message for="email"/>     
+                            </p:inputText>
+
+                            <p:outputLabel value="FECHA DE REGISTRO:" for="fecha"/>  
+                            <h:panelGroup>
+                                <p:calendar id="fecha" value="#{usuarioControlador.usuario.fechaRegistro}"  title="Ejemplo:dd/MM/yyyy" locale="de" navigator="true" pattern="dd-MM-yyyy"  />
+                                <p:message for="fecha"/>
+                            </h:panelGroup>
+                            <p:outputLabel value="VIGENCIA:"/>
+                            <h:panelGroup>
+
+                                <p:selectBooleanButton id="value1" value="#{usuarioControlador.usuario.enabled}" onLabel="Activo" offLabel="Inactivo" style="width:100px" />
+                            </h:panelGroup>
+
+                        </p:panelGrid>
+                
+                    <p:commandButton value="Agregar" action="#{usuarioControlador.crear()}"  update="panelagregarusuario form:tabladoUsuario" />
+                <p:commandButton value="Cerrar" update="panelagregarusuario" process="@this" actionListener="#{usuarioControlador.cerrar()}" oncomplete="PF('DialogoAgregarUsuario').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelagregarusuario" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+
+
+        </ui:define>
+    </ui:composition>
+</html>

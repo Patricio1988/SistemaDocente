@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+
+        <ui:define name="content">
+
+            <!-- TABLA DOCENTES-->
+            <p:panel>
+                <div style="text-align: center">
+                    <p:outputLabel value="Cargo Administrativo Del Docente" style="font-size: 15pt; font-weight: bold "/> 
+                </div>
+                <h:form id="form1">
+
+
+
+                    <p:dataTable  widgetVar="BUSCAR" id="tabladocente1" value="#{carreraDocenteControlador.listarDocenteCarreraVigentes(datosControlador.usuario.authorities,selecionPeriodo.idPeriodo)}" var="docenteItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Docente" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>                            
+                        <p:column headerText="CARRERA:" filterBy="#{docenteItem.idCarrera.nomCarrera}">
+                            <h:outputText value="#{docenteItem.idCarrera.nomCarrera}"/>
+                        </p:column>
+                        <p:column headerText="PRIMER APELLIDO" filterBy="#{docenteItem.idDocente.apellidoPaterno}">
+                            <h:outputText value="#{docenteItem.idDocente.apellidoPaterno}"/>
+                        </p:column>
+                        <p:column headerText="SEGUNDO APELLIDO" filterBy="#{docenteItem.idDocente.apellidoMaterno}">
+                            <h:outputText value="#{docenteItem.idDocente.apellidoMaterno}"/>
+                        </p:column>
+                        <p:column headerText="NOMBRES" filterBy="#{docenteItem.idDocente.nombres}">
+                            <h:outputText value="#{docenteItem.idDocente.nombres}"/>
+                        </p:column>
+                        <p:column headerText="IDENTIFICACIÓN" filterBy="#{docenteItem.idDocente.identificacion}">
+                            <h:outputText value="#{docenteItem.idDocente.identificacion}"/>
+                        </p:column>
+                        <p:column>
+                            <p:commandButton value="SELECCIONE" action="#{cargoDirectivoControlador.recuperardatosCarreraDocenteId(docenteItem.idCarreraDocente)}"  update=":form1:datosdocente1 :frmtablacargo:tablaCargoDirectivo" />
+                        </p:column>    
+
+                    </p:dataTable>
+                    <!--  Datos del docente-->
+                    <p:panelGrid columns="6" id="datosdocente1" >
+                        <f:facet name="header">
+                            Datos Docente Seleccionado
+                        </f:facet>
+                        <p:outputLabel value="NOMBRES:" style="font-weight:bold"/>
+                        <p:outputLabel id="datos" value="#{cargoDirectivoControlador.carreraDocente.idDocente.apellidoPaterno} #{cargoDirectivoControlador.carreraDocente.idDocente.apellidoMaterno} #{cargoDirectivoControlador.carreraDocente.idDocente.nombres}" > </p:outputLabel>                  
+                        <p:outputLabel value="IDENTIFICACIÓN:" style="font-weight:bold"/>
+                        <p:outputLabel id="identifi" value="#{cargoDirectivoControlador.numeroCedula}"/>
+                         <p:outputLabel value="CARRERA" style="font-weight:bold"/>
+                         <p:outputLabel id="idCarrera" value="#{cargoDirectivoControlador.carreraDocente.idCarrera.nomCarrera}"/>
+
+                    </p:panelGrid>
+                </h:form>
+            </p:panel>
+
+            <p:panel header="Cargo Directivo del Docente">
+                <!-- TABLA CARGO DIRECTIVO-->
+                <h:form>
+
+                    <p:commandButton value="Nuevo" action="#{cargoDirectivoControlador.abrirDialogo()}"/>
+                </h:form>
+                <h:form id="frmtablacargo">
+                    <p:dataTable  widgetVar="BUSCARCARGO" id="tablaCargoDirectivo" value="#{cargoDirectivoControlador.listaCargoDirectivoDocente(selecionPeriodo.idPeriodo)}" var="cargoDirectivoItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Cargo Directivo" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCARCARGO').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>                            
+
+                        <p:column headerText="CARGO:" filterBy="#{cargoDirectivoItem.tipoCargo}">
+                            <h:outputText value="#{cargoDirectivoItem.tipoCargo}"/>
+                        </p:column>
+                        <p:column headerText="NÚMERO DOCUMENTO" filterBy="#{cargoDirectivoItem.numDocumento}">
+                            <h:outputText value="#{cargoDirectivoItem.numDocumento}"/>
+                        </p:column>                        
+                        <p:column headerText="FECHA DE INICIO" filterBy="#{cargoDirectivoItem.fechaIniCargo}">
+                            <h:outputText value="#{cargoDirectivoItem.fechaIniCargo}">
+                                <f:convertDateTime pattern="dd-MMM-yyyy" /> 
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="FECHA DE FIN" filterBy="#{cargoDirectivoItem.fechaFinCargo}">
+                            <h:outputText value="#{cargoDirectivoItem.fechaFinCargo}">
+                                <f:convertDateTime pattern="dd-MMM-yyyy" />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="ACCIONES" >
+                            <p:commandButton action="#{cargoDirectivoControlador.recuperarCargoID(cargoDirectivoItem.idCargo)}" update=":dialogoCargoDirectivoVer" oncomplete="PF('dialogoDatosVer').show()" icon="ui-icon-search" title="Ver"/>
+                            <p:commandButton action="#{cargoDirectivoControlador.recuperarCargoID(cargoDirectivoItem.idCargo)}" update=":dialogoCargoDirectivoActualizar" oncomplete="PF('dialogoDatosActualizar').show()" icon="ui-icon-pencil" title="Actualizar"/>
+                            <p:commandButton actionListener="#{cargoDirectivoControlador.eliminar(cargoDirectivoItem)}" update=":frmtablacargo:tablaCargoDirectivo" icon="ui-icon-circle-close">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>                        
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+
+            <!-- DIALOGO AGREGAR-->
+
+            <p:dialog id="dialogoCargoAgregar" header="Agregar Datos Cargo Directivo" widgetVar="dialogoCargoDirectivoAgregar" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <h:form enctype="multipart/form-data">
+                    <p:panelGrid id="panelCargoDirectivo" columns="2">
+                        <p:outputLabel value="CARGO AUTORIDAD:" style="font-weight:bold" for="selectcargo"/>
+                        <h:panelGroup>
+                            <p:message for="selectcargo"/>
+                            <p:selectOneMenu id="selectcargo" value="#{cargoDirectivoControlador.cargoDirectivo.tipoCargo}">
+                                <f:selectItem itemLabel="Selecione Uno" itemValue="#{null}" />
+                                <f:selectItems value="#{cargoDirectivoControlador.tiposCargo}" />
+                            </p:selectOneMenu>                           
+                        </h:panelGroup>                                                                   
+                        <p:outputLabel value="NÚMERO DE DOCUMENTO:" style="font-weight:bold" for="numcargoDirectivo"/>                                                
+                        <p:inputText id="numcargoDirectivo" value="#{cargoDirectivoControlador.cargoDirectivo.numDocumento}">
+                            <p:message for="numcargoDirectivo"/>
+                        </p:inputText>
+                        <p:outputLabel value="FECHA DE INICIO CARGO:" style="font-weight:bold" for="txtFechaInicio"/>
+                        <h:panelGroup>
+                            <p:message for="txtFechaInicio"/>
+                            <p:calendar id="txtFechaInicio" value="#{cargoDirectivoControlador.cargoDirectivo.fechaIniCargo}" locale="es" navigator="true"  onkeypress="return permite(event, 'none')" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" >
+                                <p:ajax event="dateSelect" update="ffinal" />   
+                            </p:calendar>         
+                        </h:panelGroup>
+                        <p:outputLabel value="FECHA DE FIN CARGO:" style="font-weight:bold" for="ffinal"/>
+
+                        <p:calendar id="ffinal"  value="#{cargoDirectivoControlador.cargoDirectivo.fechaFinCargo}" mindate="#{cargoDirectivoControlador.cargoDirectivo.fechaIniCargo}" navigator="true" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" onkeypress=" return permite(event, 'none')" >
+                            <f:attribute name="txtFechaInicio" value="#{cargoDirectivoControlador.cargoDirectivo.fechaIniCargo}"/>
+                            <f:validator validatorId="validatorFechas" />
+                            <p:message for="ffinal"/>
+                        </p:calendar>                                         
+                        <p:outputLabel value="OBSERVACIONES:" style="font-weight:bold"/>
+                        <p:inputTextarea rows="5" cols="30"  maxlength="200" counterTemplate="{0}  maximo de carateres." autoResize="false"  value="#{cargoDirectivoControlador.cargoDirectivo.obsCargoDirectivo}"/>
+
+
+
+                    </p:panelGrid>
+                    <p:commandButton  value="Agregar" id="agregarcapa" actionListener="#{cargoDirectivoControlador.crear()}" update="panelCargoDirectivo :frmtablacargo:tablaCargoDirectivo"  icon="ui-icon-disk" />             
+                    <p:commandButton value="Cerrar" update="panelCargoDirectivo" process="@this" actionListener="#{cargoDirectivoControlador.cerrar()}" oncomplete="PF('dialogoCargoDirectivoAgregar').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelCargoDirectivo" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+
+            <!-- DIALOGO ACTUALIZAR-->
+
+            <p:dialog id="dialogoCargoDirectivoActualizar" header="Actualizar Datos Cargo Directivo " widgetVar="dialogoDatosActualizar" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <p:ajax event="close" listener="#{cargoDirectivoControlador.handleClose}" />
+                <h:form enctype="multipart/form-data">
+
+                    <p:panelGrid  columns="2" id="gridActualizar">
+                        <p:outputLabel value="CARGO AUTORIDAD:" style="font-weight:bold"/>
+                        <h:panelGroup>
+                            <p:message for="selectcargo"/>
+                            <p:selectOneMenu id="selectcargo" value="#{cargoDirectivoControlador.cargoDirectivo.tipoCargo}" >
+                                <f:selectItem itemLabel="Selecione Uno" itemValue="#{null}" />
+                                <f:selectItems value="#{cargoDirectivoControlador.tiposCargo}" />
+                            </p:selectOneMenu>                           
+                        </h:panelGroup>
+                        <p:outputLabel value="NÚMERO DE DOCUMENTO:" style="font-weight:bold" for="numcargoDirectivo"/>                                                
+                        <p:inputText id="numcargoDirectivo" value="#{cargoDirectivoControlador.cargoDirectivo.numDocumento}">
+                            <p:message for="numcargoDirectivo"/>
+
+                        </p:inputText>
+                        <p:outputLabel value="FECHA DE INICIO CARGO:" style="font-weight:bold" for="txtFechaInicio"/>
+                        <h:panelGroup>
+                            <p:message for="txtFechaInicio"/>
+                            <p:calendar id="txtFechaInicio" value="#{cargoDirectivoControlador.cargoDirectivo.fechaIniCargo}" locale="es" navigator="true"  onkeypress="return permite(event, 'none')" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" >
+                                <p:ajax event="dateSelect" update="ffinal" />   
+                            </p:calendar>           
+                        </h:panelGroup>
+                        <p:outputLabel value="FECHA DE FIN CARGO:" style="font-weight:bold" for="ffinal"/>
+
+                        <p:calendar id="ffinal"  value="#{cargoDirectivoControlador.cargoDirectivo.fechaFinCargo}" mindate="#{cargoDirectivoControlador.cargoDirectivo.fechaIniCargo}" navigator="true" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" onkeypress=" return permite(event, 'none')" >
+                            <f:attribute name="txtFechaInicio" value="#{cargoDirectivoControlador.cargoDirectivo.fechaIniCargo}"/>
+                            <f:validator validatorId="validatorFechas" />
+                            <p:message for="ffinal"/>
+                        </p:calendar>                                
+                        <p:outputLabel value="OBSERVACIONES:" style="font-weight:bold"/>
+                        <p:inputTextarea rows="5" cols="30"  maxlength="200" counterTemplate="{0}  maximo de carateres." autoResize="false"  value="#{cargoDirectivoControlador.cargoDirectivo.obsCargoDirectivo}"/>
+                    </p:panelGrid>
+
+                    <p:commandButton  value="Actualizar" actionListener="#{cargoDirectivoControlador.actualizar()}"   update="gridActualizar :frmtablacargo:tablaCargoDirectivo" icon="ui-icon-pencil"/>
+                    <p:commandButton value="Cerrar" update="gridActualizar" process="@this" actionListener="#{cargoDirectivoControlador.cerrar()}" oncomplete="PF('dialogoDatosActualizar').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridActualizar" />
+                    </p:commandButton>
+
+                </h:form>
+            </p:dialog>
+            <!-- DIALOGO VER-->
+            <p:dialog id="dialogoCargoDirectivoVer" header="Ver Datos Cargo Directivo" widgetVar="dialogoDatosVer" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <p:ajax event="close" listener="#{cargoDirectivoControlador.handleClose}" />
+                <h:form>
+                    <p:outputPanel id="relacionCargoDetail" style="text-align:center;">
+                        <p:panelGrid columns="2" id="gridVer">
+                            <p:outputLabel value="CARGO AUTORIDAD:" style="font-weight:bold"/>
+                            <p:outputLabel value="#{cargoDirectivoControlador.cargoDirectivo.tipoCargo}"/>
+
+                            <p:outputLabel value="NÚMERO DE DOCUMENTO:" style="font-weight:bold"/>
+                            <p:outputLabel value="#{cargoDirectivoControlador.cargoDirectivo.numDocumento}"/>
+                            <p:outputLabel value="FECHA DE INICIO CARGO" style="font-weight:bold"/>
+                            <p:outputLabel  value="#{cargoDirectivoControlador.cargoDirectivo.fechaIniCargo}"  >
+                                <f:convertDateTime pattern="yyyy-MM-dd"/>
+                            </p:outputLabel>
+                            <p:outputLabel value="FECHA DE FIN  CARGO:" style="font-weight:bold"/>
+
+                            <p:outputLabel  value="#{cargoDirectivoControlador.cargoDirectivo.fechaFinCargo}"  >
+                                <f:convertDateTime pattern="yyyy-MM-dd" />
+                            </p:outputLabel>
+                            <p:outputLabel value="NOMBRE DEL ARCHIVO:" style="font-weight:bold"/>
+                            <p:outputLabel value="#{cargoDirectivoControlador.cargoDirectivo.nombreDocCargo}"/>              
+                            <p:outputLabel value="OBSERVACIONES:" style="font-weight:bold"/>
+                            <p:inputTextarea rows="5" cols="30"  maxlength="200" counterTemplate="{0}  maximo de carateres." autoResize="false"  value="#{cargoDirectivoControlador.cargoDirectivo.obsCargoDirectivo}"/>                                   
+                        </p:panelGrid>
+                        <p:commandButton value="Cerrar" update="gridVer" process="@this" actionListener="#{cargoDirectivoControlador.cerrar()}" oncomplete="PF('dialogoDatosVer').hide();" icon="ui-icon-closethick" >
+                            <p:resetInput target="gridVer" />
+                        </p:commandButton>
+                    </p:outputPanel>
+                </h:form>
+            </p:dialog>
+            <!-- DIALOGO CONFIRMAR-->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+
+        </ui:define>
+    </ui:composition>
+</html>

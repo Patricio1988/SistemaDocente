@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+      
+        <ui:define name="content">
+            <p:growl  showDetail="true"  autoUpdate="true" sticky="false" />   
+  
+                <p:panel header="Carga Evidencia Malla" >
+                    <h:form id="frmCDEvidencia">
+                          <!-- TABLA Malla-->
+
+                          <p:dataTable  widgetVar="BUSCAR" id="tablaMalla" value="#{mallaControlador.listaMallasCarrera(datosControlador.usuario.authorities)}" var="mallaItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Malla" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>                            
+                        <p:column headerText="CÓDIGO:" filterBy="#{mallaItem.codMalla}">
+                            <h:outputText value="#{mallaItem.codMalla}"/>
+                        </p:column>
+                        <p:column headerText="NOMBRE" filterBy="#{mallaItem.nomMalla}">
+                            <h:outputText value="#{mallaItem.nomMalla}"/>
+                        </p:column>                      
+                        <p:column headerText="FECHA INICIO" filterBy="#{mallaItem.fechaIniMalla}">
+                            <h:outputText value="#{mallaItem.fechaIniMalla}">
+                                <f:convertDateTime pattern="DD-MMM-YYYY"/>
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="FECHA FIN" filterBy="#{mallaItem.fechaFinMalla}">
+                            <h:outputText value="#{mallaItem.fechaFinMalla}">
+                                <f:convertDateTime pattern="DD-MMM-YYYY"/>
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="CARRERA" filterBy="#{mallaItem.idCarrera.nomCarrera}">
+                            <h:outputText value="#{mallaItem.idCarrera.nomCarrera}"/>
+                        </p:column>
+                        
+                            <p:column headerText="LISTA ARCHIVOS" >
+                                <p:column>
+                             <h:outputText value="#{mallaItem.nombreDocMalla}"/>
+                             </p:column>
+                             <p:column>
+                                 <p:commandButton   ajax="false" actionListener="#{mallaControlador.descargarArchivoRepositorio(mallaItem.idDocMalla)}" icon="ui-icon-document" title="Descargar" rendered="#{mallaItem.nombreDocMalla!=null || mallaItem.nombreDocMalla==mallaControlador.vacio}">
+                                <p:fileDownload value="#{mallaControlador.file}"/>    
+                            </p:commandButton>
+                                 <p:commandButton actionListener="#{mallaControlador.eliminarArchivoRepositorio(mallaItem.idDocMalla ,mallaItem.idMalla)}" update=":frmCDEvidencia:tablaMalla" icon="ui-icon-circle-close" rendered="#{mallaItem.nombreDocMalla!=null || mallaItem.nombreDocMalla==mallaControlador.vacio}">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+                            </p:column>
+                           
+                        </p:column>
+
+                        <p:column headerText="ACCIONES" >
+                            <p:commandButton action="#{mallaControlador.buscarMallaID(mallaItem.idMalla)}" update=":dlgDatosSubir" oncomplete="PF('dglSubirArchivo').show()" value="Cargar Archivo" title="Ver"/>
+                                                   
+                        </p:column>
+                        
+                    </p:dataTable>
+                        
+                    </h:form>      
+                </p:panel>
+             
+            
+            <p:dialog id="dlgDatosSubir" header="Subir Archivo" widgetVar="dglSubirArchivo" modal="true" showEffect="fade" hideEffect="fade" resizable="false" >
+
+                <h:form enctype="multipart/form-data">
+                    <p:outputPanel id="relacionlaboralDetail" style="text-align:center;">
+                        <p:panelGrid columns="2" id="gridVer">
+
+                            <p:outputLabel value="FACULTAD:" style="font-weight: bold"/>
+                            <p:outputLabel value="#{mallaControlador.malla.idCarrera.idFacultad.nomFacultad}"/>
+
+
+                            <p:outputLabel value="CARRERA:" style="font-weight: bold"/>
+                            <p:outputLabel value="#{mallaControlador.malla.idCarrera.nomCarrera}"/>             
+                            <p:outputLabel value="CÓDIGO DE LA MALLA:" style="font-weight: bold"/>
+
+                            <p:outputLabel value="#{mallaControlador.malla.codMalla}"/>
+                            <p:outputLabel value="NOMBRE DE LA MALLA:" style="font-weight: bold"/>
+
+                            <p:outputLabel  value="#{mallaControlador.malla.nomMalla}"   />
+                            <p:outputLabel value="ORGANIZACIÓN:" style="font-weight: bold"/>   
+                            <p:outputLabel  value="#{mallaControlador.malla.organizacionMalla}" />
+
+                            <p:outputLabel value="FECHA DE INICIO DE LA MALLA:" style="font-weight: bold"/>
+
+                            <p:outputLabel id="fechaIniciOMA" value="#{mallaControlador.malla.fechaIniMalla}"  >
+                                <f:convertDateTime  pattern="dd-MMM-yyyy"/>
+                            </p:outputLabel>
+                            <p:outputLabel value="FECHA DE FIN DE LA MALLA:" style="font-weight: bold"/>
+
+                            <p:outputLabel id="fechaFinMA" value="#{mallaControlador.malla.fechaFinMalla}" >
+                                <f:convertDateTime  pattern="dd-MMM-yyyy"/>
+                            </p:outputLabel>
+                        <p:outputLabel value="ARCHIVO:(.pdf)" style="font-weight:bold"/>
+                            <h:panelGroup>
+                                <p:fileUpload  fileUploadListener="#{mallaControlador.handleFileUpload}"  update="txtlabael" allowTypes="/(\.|\/)(pdf)$/" sizeLimit="6250000" />
+
+
+                                <p:outputLabel  id="txtlabael" value="#{mallaControlador.malla.nombreDocMalla}" style="font-weight:bold"/>
+                                <p:commandButton  value="Cargar"  actionListener="#{mallaControlador.subirArchivoRepositorio()}" oncomplete="PF('dglSubirArchivo').hide()"  update=":frmCDEvidencia:tablaMalla"  icon="ui-icon-disk" />
+                            </h:panelGroup>
+                        </p:panelGrid>
+                            
+                      
+                    </p:outputPanel>
+                </h:form>
+            </p:dialog>
+               <!--  Dialogo confirmacion-->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+
+        </ui:define>
+    </ui:composition>
+</html>
+
+

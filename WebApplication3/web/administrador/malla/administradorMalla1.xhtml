@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+    <head>
+        <title>TODO supply a title</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+    <ui:composition template="/Templates/Plantilla.xhtml">
+        <ui:define name="content">
+            
+            <!-- tabla malla-->
+            <p:panel header="Administrador Datos de la Malla">
+              <h:form>
+                <p:commandButton value="Nuevo" oncomplete="PF('dialogoMallaAgregar').show()"/>
+            </h:form>
+                <h:form id="frmtablaMalla">
+                    <p:dataTable  widgetVar="BUSCAR" id="tablaMalla" value="#{mallaControlador.recuperarTodos()}" var="mallaItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Malla" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>
+                        <p:column headerText="FACULTAD" filterBy="#{mallaItem.idCarrera.idFacultad.nomFacultad}" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}">
+                            <h:outputText value="#{mallaItem.idCarrera.idFacultad.nomFacultad}" />
+                        </p:column>
+                        <p:column headerText="CARRERA" filterBy="#{mallaItem.idCarrera.nomCarrera}">
+                            <h:outputText value="#{mallaItem.idCarrera.nomCarrera}" />
+                        </p:column>   
+                        <p:column headerText="NOMBRE MALLA" filterBy="#{mallaItem.nomMalla}">
+                            <h:outputText value="#{mallaItem.nomMalla}" />
+                        </p:column>
+                        <p:column headerText="FECHA DE INICIO" filterBy="#{mallaItem.fechaIniMalla}" >
+                            <h:outputText value="#{mallaItem.fechaIniMalla}" >
+                                <f:convertDateTime pattern="dd-MMM-yyyy"/>
+                            </h:outputText>
+                        </p:column>  
+                        <p:column headerText="FECHA DE FIN" filterBy="#{mallaItem.fechaFinMalla}" >
+                            <h:outputText value="#{mallaItem.fechaFinMalla}" >
+                                <f:convertDateTime pattern="dd-MMM-yyyy"/>
+                            </h:outputText>
+                        </p:column> 
+                        <p:column headerText="ORGANIZACIÓN" filterBy="#{mallaItem.organizacionMalla}"  >
+                            <h:outputText value="#{mallaItem.organizacionMalla}" /> 
+                        </p:column> 
+                        <p:column headerText="SEMESTRES" filterBy="#{mallaItem.numSemestres}" style="width:80px " filterStyle="width:50px">
+                            <h:outputText value="#{mallaItem.numSemestres}" /> 
+                        </p:column> 
+                        <p:column headerText="ESTADO" >
+                            <h:outputText  value="INACTIVO" rendered="#{mallaItem.estadoMalla==false}" />
+                            <h:outputText value="ACTIVO" rendered="#{mallaItem.estadoMalla==true}"/>
+                        </p:column> 
+                        <p:column headerText="ACCIONES" >
+                            <p:commandButton action="#{mallaControlador.buscarMallaID(mallaItem.idMalla)}" update=":dialogoMallVer" oncomplete="PF('dialogoMallaVer').show()" icon="ui-icon-search" title="Ver"/>
+                            <p:commandButton action="#{mallaControlador.buscarMallaID(mallaItem.idMalla)}" update=":dialogoMallActualizar" oncomplete="PF('dialogoMallaActualizar').show()" icon="ui-icon-pencil" title="Actualizar"/>
+                            <p:commandButton actionListener="#{mallaControlador.eliminar(mallaItem)}" update="tablaMalla" icon="ui-icon-circle-close">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+                        </p:column>
+                    </p:dataTable>
+                </h:form> 
+            </p:panel>
+            <p:dialog id="dialogoMallAgregar" header="Agregar Datos de la Malla" widgetVar="dialogoMallaAgregar" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <h:form enctype="multipart/form-data">
+                    <p:panelGrid id="panelMalla" columns="4">
+
+                        <p:outputLabel value="FACULTAD: *" style="font-weight: bold" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}"/>
+                        <h:panelGroup>
+                            <p:message for="selectFacu"/>
+                            <p:selectOneMenu  id="selectFacu" value="#{mallaControlador.idFacultad}" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}" required="true" requiredMessage="Seleccione una Facultad">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue=" " />
+                                <f:selectItems value="#{facultadControlador.recuperarTodos()}" var="itemFacu" itemLabel="#{itemFacu.nomFacultad}" itemValue="#{itemFacu.idFacultad}"></f:selectItems>
+                                <p:ajax event="change" listener="#{mallaControlador.getCarreras}" update="idcarrera"  />
+
+                            </p:selectOneMenu>
+
+                        </h:panelGroup>
+                        <p:outputLabel value="CARRERA: *" style="font-weight: bold" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}"/>
+                        <h:panelGroup>
+                            <p:message for="idcarrera"/>
+                            <p:selectOneMenu id="idcarrera" value="#{mallaControlador.idCarrera}" disabled="#{mallaControlador.estadoComboBox}" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}" required="true" requiredMessage="Seleccione una Carrera">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue=" " />
+                                <f:selectItems value="#{mallaControlador.itemsCarrera}"/>                        
+                            </p:selectOneMenu>  
+                        </h:panelGroup>
+                        <p:outputLabel value="CÓDIGO DE LA MALLA:" style="font-weight: bold " for="codMalla"/>
+
+                        <p:inputText id="codMalla" value="#{mallaControlador.malla.codMalla}">
+                            
+                            <p:message for="codMalla"/>
+                        </p:inputText>
+                        <p:outputLabel value="NOMBRE DE LA MALLA:" for="nomMalla" style="font-weight: bold "/>
+
+                        <p:inputText id="nomMalla" value="#{mallaControlador.malla.nomMalla}"   >                           
+                            <p:message for="nomMalla"/>
+                        </p:inputText>
+                        <p:outputLabel value="ORGANIZACIÓN:" for="organizacion" style="font-weight: bold "/> 
+                        <h:panelGroup>
+                            <p:message for="organizacion"/>
+                            <p:selectOneMenu id="organizacion" value="#{mallaControlador.malla.organizacionMalla}" effect="fold" editable="false" required="true" requiredMessage="Seleccione un Tipo de Organización">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                <f:selectItems value="#{mallaControlador.organizacion}" />
+                            </p:selectOneMenu>
+
+                        </h:panelGroup>
+                        <p:outputLabel value="MESES SIN TESIS:" for="messinTesis" style="font-weight: bold "/>
+                        <p:inputText id="messinTesis" value="#{mallaControlador.malla.mesesSinTesis}" onkeypress="return soloNumeros(event)">              
+                            <p:message for="messinTesis"/>
+                        </p:inputText>
+                        <p:outputLabel value="MESES CON TESIS:" for="mesconTesis" style="font-weight: bold " />
+                        <p:inputText id="mesconTesis" value="#{mallaControlador.malla.mesesConTesis}" onkeypress="return soloNumeros(event)">                          
+                            <p:message for="mesconTesis"/>
+                        </p:inputText>
+                        <p:outputLabel value="CRÉDITOS SIN TESIS:" for="cresinTesis" style="font-weight: bold " />
+                        <p:inputText id="cresinTesis" value="#{mallaControlador.malla.creditosSinTesis}" onkeypress="return soloNumeros(event)">                         
+                            <p:message for="cresinTesis"/>
+                        </p:inputText>
+                        <p:outputLabel value="CRÉDITOS CON TESIS:" for="creconTesis" style="font-weight: bold "/>
+                        <p:inputText id="creconTesis" value="#{mallaControlador.malla.creditosConTesis}"  onkeypress="return soloNumeros(event)">
+                            <p:message for="creconTesis"/>
+                        </p:inputText>
+
+
+                        <p:outputLabel value="FECHA DE INICIO MALLA:" style="font-weight:bold" for="txtFechaInicio"/>
+                        <h:panelGroup>
+                            
+                            <p:calendar id="txtFechaInicio" value="#{mallaControlador.malla.fechaIniMalla}" locale="es" navigator="true"  onkeypress="return permite(event, 'none')" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" >
+                                <p:ajax event="dateSelect" update="ffinal" />   
+                                <p:message for="txtFechaInicio"/>
+                            </p:calendar>
+                            
+
+                        </h:panelGroup>
+                        <p:outputLabel value="FECHA DE FIN MALLA:" style="font-weight:bold" for="ffinal"/>
+
+                        <p:calendar id="ffinal"  value="#{mallaControlador.malla.fechaFinMalla}" mindate="#{mallaControlador.malla.fechaIniMalla}" navigator="true" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy"  onkeypress=" return permite(event, 'none')" >
+                            <f:attribute name="txtFechaInicio" value="#{mallaControlador.malla.fechaIniMalla}"/>                        
+                            <p:message for="ffinal"/>
+                        </p:calendar>
+
+
+                        <p:outputLabel value="NÚMERO DE SEMESTRES:" for="numhoras" style="font-weight: bold " />
+                        <p:inputText id="numhoras" value="#{mallaControlador.malla.numSemestres}" onkeypress="return soloNumeros(event)">                         
+                        <p:message for="numhoras"/>
+                        </p:inputText>
+
+                        <p:outputLabel value="ESTADO MALLA" style="font-weight:bold"/> 
+                        <h:panelGroup>
+
+                            <p:selectBooleanButton id="value1" value="#{mallaControlador.malla.estadoMalla}" onLabel="Activo" offLabel="Inactivo" style="width:100px" />
+                        </h:panelGroup>
+                    
+                    </p:panelGrid>
+                    <p:commandButton value="Agregar" actionListener="#{mallaControlador.crear(datosControlador.usuario.authorities)}"    update="panelMalla :frmtablaMalla:tablaMalla "/>
+                 <p:commandButton value="Cerrar" update="panelMalla" process="@this" actionListener="#{mallaControlador.cerrar()}" oncomplete="PF('dialogoMallaAgregar').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelMalla" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+            <p:dialog id="dialogoMallActualizar" header="Actualizar Datos de la Malla" widgetVar="dialogoMallaActualizar" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+              
+                <h:form enctype="multipart/form-data">
+                    <p:panelGrid id="panelMalla" columns="4">
+
+                        <p:outputLabel value="FACULTAD: *" style="font-weight: bold" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}"/>
+                        <h:panelGroup>
+                            <p:message for="selectFacu"/>
+                            <p:selectOneMenu  id="selectFacu" value="#{mallaControlador.idFacultad}" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}" required="true" requiredMessage="Seleccione una Facultad">
+                                <f:selectItem itemLabel="Selecione Uno" itemValue=" " />
+                                <f:selectItems value="#{facultadControlador.recuperarTodos()}" var="itemFacu" itemLabel="#{itemFacu.nomFacultad}" itemValue="#{itemFacu.idFacultad}"></f:selectItems>
+                                <p:ajax event="change" listener="#{mallaControlador.getCarreras}" update="idcarrera"  />
+
+                            </p:selectOneMenu>
+
+                        </h:panelGroup>
+                        <p:outputLabel value="CARRERA: *" style="font-weight: bold" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}"/>
+                        <h:panelGroup>
+                            <p:message for="idcarrera"/>
+                            <p:selectOneMenu id="idcarrera" value="#{mallaControlador.idCarrera}" disabled="#{mallaControlador.estadoComboBox}" rendered="#{(datosControlador.usuario.authorities.authority!='ROLE_SECRETARIA' and datosControlador.usuario.authorities.authority!='ROLE_ADMINISTRADOR')}" required="true" requiredMessage="Seleccione una Carrera">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue=" " />
+                                <f:selectItems value="#{mallaControlador.itemsCarrera}"/>                        
+                            </p:selectOneMenu>  
+                        </h:panelGroup>
+                        <p:outputLabel value="CÓDIGO DE LA MALLA:" style="font-weight: bold " for="codMalla"/>
+
+                        <p:inputText id="codMalla" value="#{mallaControlador.malla.codMalla}">                
+                            <p:message for="codMalla"/>
+                        </p:inputText>
+                        <p:outputLabel value="NOMBRE DE LA MALLA:" for="nomMalla" style="font-weight: bold "/>
+
+                        <p:inputText id="nomMalla" value="#{mallaControlador.malla.nomMalla}"   >                         
+                            <p:message for="nomMalla"/>
+                        </p:inputText>
+                        <p:outputLabel value="ORGANIZACIÓN:" for="organizacion" style="font-weight: bold "/> 
+                        <h:panelGroup>
+                            <p:message for="organizacion"/>
+                            <p:selectOneMenu id="organizacion" value="#{mallaControlador.malla.organizacionMalla}" effect="fold" editable="false" required="true" requiredMessage="Seleccione un Tipo de Organización">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                <f:selectItems value="#{mallaControlador.organizacion}" />
+                            </p:selectOneMenu>
+
+                        </h:panelGroup>
+                        <p:outputLabel value="MESES SIN TESIS:" for="messinTesis" style="font-weight: bold " />
+                        <p:inputText id="messinTesis" value="#{mallaControlador.malla.mesesSinTesis}" onkeypress="return soloNumeros(event)">                  
+                            <p:message for="messinTesis"/>
+                        </p:inputText>
+                        <p:outputLabel value="MESES CON TESIS:" for="mesconTesis" style="font-weight: bold "/>
+                        <p:inputText id="mesconTesis" value="#{mallaControlador.malla.mesesConTesis}"  onkeypress="return soloNumeros(event)">                       
+                            <p:message for="mesconTesis"/>
+                        </p:inputText>
+                        <p:outputLabel value="CRÉDITOS SIN TESIS:" for="cresinTesis" style="font-weight: bold "/>
+                        <p:inputText id="cresinTesis" value="#{mallaControlador.malla.creditosSinTesis}"  onkeypress="return soloNumeros(event)">
+                          
+                            <p:message for="cresinTesis"/>
+                        </p:inputText>
+                        <p:outputLabel value="CRÉDITOS CON TESIS:" for="creconTesis" style="font-weight: bold "/>
+                        <p:inputText id="creconTesis" value="#{mallaControlador.malla.creditosConTesis}"  onkeypress="return soloNumeros(event)">
+                            <p:message for="creconTesis"/>
+                        </p:inputText>
+
+
+                        <p:outputLabel value="FECHA DE INICIO MALLA:" style="font-weight:bold" for="txtFechaInicio"/>
+                        <h:panelGroup>
+                            <p:calendar id="txtFechaInicio" value="#{mallaControlador.malla.fechaIniMalla}" locale="es" navigator="true"  onkeypress="return permite(event, 'none')" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" >
+                                <p:ajax event="dateSelect" update="ffinal" />   
+                            </p:calendar>
+                            <p:message for="txtFechaInicio"/>
+
+                        </h:panelGroup>
+                        <p:outputLabel value="FECHA DE FIN MALLA:" style="font-weight:bold" for="ffinal"/>
+
+                        <p:calendar id="ffinal"  value="#{mallaControlador.malla.fechaFinMalla}" mindate="#{mallaControlador.malla.fechaIniMalla}" navigator="true" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" onkeypress=" return permite(event, 'none')" >
+                            <f:attribute name="txtFechaInicio" value="#{mallaControlador.malla.fechaIniMalla}"/>
+                            
+                            <p:message for="ffinal"/>
+                        </p:calendar>
+
+
+                        <p:outputLabel value="NÚMERO DE SEMESTRES:" for="numhoras" style="font-weight: bold "/>
+                        <p:inputText id="numhoras" value="#{mallaControlador.malla.numSemestres}"  onkeypress="return soloNumeros(event)">                         
+                            <p:message for="numhoras"/>
+                        </p:inputText>
+                        <p:outputLabel value="ESTADO MALLA" style="font-weight:bold"/> 
+                        <h:panelGroup>
+
+                            <p:selectBooleanButton id="value1" value="#{mallaControlador.malla.estadoMalla}" onLabel="Activo" offLabel="Inactivo" style="width:100px" />
+                        </h:panelGroup>
+                    </p:panelGrid>
+                    <p:commandButton value="Actualizar" actionListener="#{mallaControlador.actualizar(datosControlador.usuario.authorities)}"  update="panelMalla :frmtablaMalla:tablaMalla "/>
+                   <p:commandButton value="Cerrar" update="panelMalla" process="@this" actionListener="#{mallaControlador.cerrar()}" oncomplete="PF('dialogoMallaActualizar').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelMalla" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+            <!-- DIALOGO VER-->
+            <p:dialog id="dialogoMallVer" header="Ver Datos de la Malla" widgetVar="dialogoMallaVer" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                
+                <h:form>
+
+                    <p:outputPanel id="relacionCargoDetail" style="text-align:center;">
+                        <p:panelGrid columns="2" id="gridVer">
+
+                            <p:outputLabel value="FACULTAD:" style="font-weight: bold"/>
+                            <p:outputLabel value="#{mallaControlador.malla.idCarrera.idFacultad.nomFacultad}"/>
+
+
+                            <p:outputLabel value="CARRERA:" style="font-weight: bold"/>
+                            <p:outputLabel value="#{mallaControlador.malla.idCarrera.nomCarrera}"/>             
+                            <p:outputLabel value="CÓDIGO DE LA MALLA:" style="font-weight: bold"/>
+
+                            <p:outputLabel value="#{mallaControlador.malla.codMalla}"/>
+                            <p:outputLabel value="NOMBRE DE LA MALLA:" style="font-weight: bold"/>
+
+                            <p:outputLabel  value="#{mallaControlador.malla.nomMalla}"   />
+                            <p:outputLabel value="ORGANIZACIÓN:" style="font-weight: bold"/>   
+                            <p:outputLabel  value="#{mallaControlador.malla.organizacionMalla}" />
+
+                            <p:outputLabel value="MESES SIN TESIS:" style="font-weight: bold"/>
+                            <p:outputLabel  value="#{mallaControlador.malla.mesesSinTesis}"/>
+                            <p:outputLabel value="MESES CON TESIS:" style="font-weight: bold"/>
+                            <p:outputLabel  value="#{mallaControlador.malla.mesesConTesis}"/>
+                            <p:outputLabel value="CRÉDITOS SIN TESIS:" style="font-weight: bold"/>
+                            <p:outputLabel  value="#{mallaControlador.malla.creditosSinTesis}"/>
+                            <p:outputLabel value="CRÉDITOS CON TESIS:" style="font-weight: bold"/>
+                            <p:outputLabel value="#{mallaControlador.malla.creditosConTesis}"/>
+                            <p:outputLabel value="FECHA DE INICIO DE LA MALLA:" style="font-weight: bold"/>
+
+                            <p:outputLabel id="fechaIniciOMA" value="#{mallaControlador.malla.fechaIniMalla}"  >
+                                <f:convertDateTime  pattern="dd-MMM-yyyy"/>
+                            </p:outputLabel>
+                            <p:outputLabel value="FECHA DE FIN DE LA MALLA:" style="font-weight: bold"/>
+
+                            <p:outputLabel id="fechaFinMA" value="#{mallaControlador.malla.fechaFinMalla}" >
+                                <f:convertDateTime  pattern="dd-MMM-yyyy"/>
+                            </p:outputLabel>
+
+                            <p:outputLabel value="NÚMERO DE SEMESTRES:" style="font-weight: bold"/>
+                            <p:outputLabel  value="#{mallaControlador.malla.numSemestres}" />    
+                            <p:outputLabel value="NOMBRE DEL ARCHIVO:" style="font-weight: bold"/>
+                            <p:outputLabel  value="#{mallaControlador.malla.nombreDocMalla}"/>  
+                        </p:panelGrid>
+                        <p:commandButton value="Cerrar" update="gridVer" process="@this" actionListener="#{mallaControlador.cerrar()}" oncomplete="PF('dialogoMallaVer').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridVer" />
+                    </p:commandButton>
+                    </p:outputPanel>
+                </h:form>
+            </p:dialog>
+            <!-- DIALOGO CONFIRMAR-->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+        </ui:define>
+    </ui:composition>
+
+
+</html>

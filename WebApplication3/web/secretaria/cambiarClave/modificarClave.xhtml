@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+
+        <ui:define name="content">
+            <p:separator/>
+
+            
+            <h:form id="frmcambioClave">
+                <center>
+                <p:panel header="Cambio de la Contraseña" style= "width: 500px">
+                    <p:panelGrid id="panelCambiarClave" columns="2" >
+
+                        <p:outputLabel value="Ingrese la Clave Actual" for="idclaveActual"/>
+                        <p:password id="idclaveActual" value="#{usuarioControlador.claveActual}" required="true" requiredMessage="La clave actual es un campo obligatorio" >
+                            <p:message for="idclaveActual"/>
+                        </p:password>                
+                        <h:outputLabel for="pwd1" value="Nueva Clave (Clave 1): *" />
+                        <p:password id="pwd1" value="#{usuarioControlador.usuario.password}" match="pwd2" label="Clave 1" required="true" requiredMessage="La nueva clave es un campo obligatorio"  feedback="true" 
+                                    promptLabel="Porfavor ingrese una contraseña" weakLabel="Debil"
+                    goodLabel="Buena" strongLabel="Fuerte" >
+                         <p:message for="pwd1"/>
+                        </p:password>
+                        <h:outputLabel for="pwd2" value="Repita la nueva clave (Clave 2): *" />
+                        <p:password id="pwd2" value="#{usuarioControlador.usuario.password}" label="Clave 2" required="true"   requiredMessage="Es un campo obligatorio"  >
+                        <p:message for="pwd2"/>
+                        </p:password>
+                    </p:panelGrid>
+                    <p:commandButton action="#{usuarioControlador.cambioContrasena(datosControlador.usuario)}" update="panelCambiarClave" value="Guardar" />
+                </p:panel>
+                    </center>
+            </h:form>
+        </ui:define>
+    </ui:composition>
+</html>

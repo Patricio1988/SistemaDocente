@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">    
+        <ui:define name="content">
+
+            <p:panel>
+                <div style="text-align: center">
+                    <p:outputLabel value="Carga Horaria Del Docente" style="font-size: 15pt; font-weight: bold "/> 
+                </div>
+                <h:form id="idformCarga" >
+                    <p:dataTable  widgetVar="BUSCAR" id="tabladocente1" value="#{carreraDocenteControlador.listarDocenteCarreraVigentes(datosControlador.usuario.authorities,selecionPeriodo.idPeriodo)}" var="contratoItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Docente" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>                            
+                        <p:column headerText="CARRERA:" filterBy="#{contratoItem.idCarrera.nomCarrera}">
+                            <h:outputText value="#{contratoItem.idCarrera.nomCarrera}"/>
+                        </p:column>
+                        <p:column headerText="PRIMER APELLIDO" filterBy="#{contratoItem.idDocente.apellidoPaterno}">
+                            <h:outputText value="#{contratoItem.idDocente.apellidoPaterno}"/>
+                        </p:column>
+                        <p:column headerText="SEGUNDO APELLIDO" filterBy="#{contratoItem.idDocente.apellidoMaterno}">
+                            <h:outputText value="#{contratoItem.idDocente.apellidoMaterno}"/>
+                        </p:column>
+                        <p:column headerText="NOMBRES" filterBy="#{contratoItem.idDocente.nombres}">
+                            <h:outputText value="#{contratoItem.idDocente.nombres}"/>
+                        </p:column>
+                        <p:column headerText="IDENTIFICACIÓN" filterBy="#{contratoItem.idDocente.identificacion}">
+                            <h:outputText value="#{contratoItem.idDocente.identificacion}"/>
+                        </p:column>
+                        <p:column>
+                            <p:commandButton value="SELECCIONAR" action="#{cargaHorariaControlador.recuperarDatosCarreraDocenteId(contratoItem.idCarreraDocente)}"  update=":idformCarga:datosdocente1 :frmcontrato:tablaContrato :frmperiodo:panelperido :frmSeleccionarContrato:novcontrato :formcargaDocente:tablaCargaDocente :formcargaDocente:txtNumHorasTotales"/>
+                        </p:column>    
+                    </p:dataTable>
+
+                    <!--  Datos del docente-->
+                    <p:panelGrid columns="6" id="datosdocente1" >
+                        <f:facet name="header">
+                            Datos Docente Seleccionado
+                        </f:facet>
+                        <p:outputLabel value="NOMBRES:" style="font-weight:bold"/> 
+                        <p:outputLabel id="datos" value="#{cargaHorariaControlador.carreraDocente.idDocente.apellidoPaterno} #{cargaHorariaControlador.carreraDocente.idDocente.apellidoMaterno} #{cargaHorariaControlador.carreraDocente.idDocente.nombres}" > </p:outputLabel>                  
+                        <p:outputLabel value="IDENTIFICACIÓN:" style="font-weight:bold"/>
+                        <p:outputLabel id="identifi" value="#{cargaHorariaControlador.numeroCedula}"/>
+                        <p:outputLabel value="CARRERA:" style="font-weight:bold"/>
+                        <p:outputLabel id="idCarrera" value="#{cargaHorariaControlador.carreraDocente.idCarrera.nomCarrera}"/>
+                    </p:panelGrid>
+
+                </h:form>
+            
+             <h:form id="frmSeleccionarContrato">
+                 <p:panelGrid columns="2" id="panelContrato">
+                        <h:panelGroup>
+                            <p:commandButton id="botonContrato" value="Seleccionar Contrato" action="#{cargaHorariaControlador.abrirDialogoContrato()}"/>
+                        </h:panelGroup>
+                        <p:panelGrid columns="1">
+                            <p:outputLabel value="Contrato Seleccionado" style="font-weight:bold"/>
+                            <p:outputLabel id="novcontrato" value="#{cargaHorariaControlador.relacionlaboral.numDocumento}"/>
+                        </p:panelGrid>
+                     </p:panelGrid>
+           </h:form>
+                </p:panel>
+            <!-- DATOS PERIODO-->
+            <h:form id="frmperiodo">
+                <p:panel>
+                    <p:panelGrid columns="4" id="panelperido">
+                        <p:outputLabel value="Tipo de Actividad:" style="font-weight: bold" for="idActividad"/>
+                        <h:panelGroup>
+                            <p:message for="idActividad"/>
+                            <p:selectOneMenu id="idActividad" value="#{cargaHorariaControlador.idActividad}" effect="fold" editable="false" required="true" requiredMessage="Seleccione una actividad">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                <f:selectItems value="#{actividadControlador.recuperarTodos()}" var="itemsactividad" itemValue="#{itemsactividad.idActivida}" itemLabel="#{itemsactividad.nomActividad}"/>
+                                <p:ajax event="change" listener="#{cargaHorariaControlador.getEstadoActividad}" update="botonMalla :agre:botonMateria txtnomMalla "/>
+                            </p:selectOneMenu>
+                        </h:panelGroup>
+                        <p:commandButton id="botonMalla" value="Seleccionar Malla" oncomplete="PF('dialogoMalla').show()"  disabled="#{cargaHorariaControlador.estadoBoton}"></p:commandButton>
+                        <p:panelGrid columns="1">
+                            <p:outputLabel value="Malla seleccionada" style="font-weight:bold" />
+                            <p:outputLabel id="txtnomMalla" value="#{cargaHorariaControlador.malla.nomMalla}" />
+                        </p:panelGrid>                         
+                    </p:panelGrid> 
+                     <p:commandButton value="Nuevo" action="#{cargaHorariaControlador.abrirDialogoNuevo()}"/>
+                </p:panel>
+            </h:form>
+            <!-- PANEL INGRESO DE DATOS Carga horaria-->
+
+            <p:dialog id="dialogoCargoAgregar" header="Agregar Datos Carga Horaria" widgetVar="dialogoCargaAgregar" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <h:form id="agre">
+
+                    <p:panelGrid id="panelCargo" columns="4">    
+
+                        <h:panelGroup>
+
+                            <p:commandButton id="botonMateria" value="Agregar Materias" oncomplete="PF('dialogoMaterias').show()" disabled="#{cargaHorariaControlador.estadoBoton}"> </p:commandButton>
+
+
+                        </h:panelGroup>
+                        <p:panelGrid columns="1">
+                            <p:outputLabel value="Materia seleccionada"/>
+                            <p:outputLabel id="txtmateria" value="#{cargaHorariaControlador.materia.nomMateria}" />
+
+                        </p:panelGrid>
+                        <p:outputLabel value="Número de Paralelos"/>
+                        <p:inputText id="txtparalelos" value="#{cargaHorariaControlador.docentesMallaContratoMateria.numParaleslos}"/>
+
+                        <p:outputLabel value="Número de Horas" for="txthoras"/>
+                        <p:inputText id="txthoras" value="#{cargaHorariaControlador.docentesMallaContratoMateria.numHorasAsignatura}">
+                            <p:message for="txthoras"/>
+                        </p:inputText>
+                        <p:outputLabel  value="Número de Estudiantes"/>
+                        <p:inputText  id="txtnumestu" value="#{cargaHorariaControlador.docentesMallaContratoMateria.numEstudiantes}"/>
+                        <p:outputLabel  value="OBSERVACIONES:" style="font-weight:bold"/>
+                        <p:inputTextarea id="txtobs" rows="5" cols="30"  maxlength="200" counterTemplate="{0}  maximo de carateres." autoResize="false"  value="#{cargaHorariaControlador.docentesMallaContratoMateria.obsDocMatMalla}"/>
+
+                    </p:panelGrid>
+                    <p:commandButton value="Agregar" id="agregarcargo" action="#{cargaHorariaControlador.crear()}" update="txtmateria txthoras txtnumestu txtparalelos txtobs :formcargaDocente:tablaCargaDocente :formcargaDocente:txtNumHorasTotales"  icon="ui-icon-disk" />
+                    <p:commandButton value="Cerrar" update="panelCargo" process="@this" actionListener="#{cargaHorariaControlador.cerrar()}" oncomplete="PF('dialogoCargaAgregar').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelCargo" />
+                    </p:commandButton>
+
+                </h:form>
+            </p:dialog>
+            <!-- actualizar DE DATOS Carga Horaria-->
+            <p:dialog header="Actualizar Datos Carga Horaria" widgetVar="dialogoCargaAc" id="dldatos" modal="true" closable="false">
+                <h:form id="dialogoactu">
+                    <p:panelGrid id="gridActualizar" columns="4">
+
+                        <p:outputLabel value="Tipo de Actividad:" style="font-weight: bold"/>
+                        <h:panelGroup>
+                            <p:selectOneMenu id="idActividad" value="#{cargaHorariaControlador.idActividad}" effect="fold" editable="false">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="0" />
+                                <f:selectItems value="#{actividadControlador.recuperarTodos()}" var="itemsactividad" itemValue="#{itemsactividad.idActivida}" itemLabel="#{itemsactividad.nomActividad}"/>
+                                <p:ajax event="change" listener="#{cargaHorariaControlador.getEstadoActividad}" update="botonMalla txtnomMalla botonMateria txtmateria" />
+                            </p:selectOneMenu>
+
+                        </h:panelGroup>
+                        <h:panelGroup>                           
+                            <p:commandButton value="Seleccionar Contrato" oncomplete="PF('dialogoContrato').show()" />                                 
+                        </h:panelGroup>
+                        <h:panelGroup>
+                            <p:outputLabel value="Número de Contrato: " style="font-weight:bold"/>
+                            <p:outputLabel id="novcontrato" value="#{cargaHorariaControlador.relacionlaboral.numDocumento}"/>
+                        </h:panelGroup>
+
+                        <p:panelGrid columns="2">
+                            <p:commandButton id="botonMalla" value="Seleccionar Malla" oncomplete="PF('dialogoMalla').show()" disabled="#{cargaHorariaControlador.estadoBoton}" ></p:commandButton>
+
+                        </p:panelGrid>
+
+                        <h:panelGroup>
+                            <p:outputLabel value="Nombre Malla: " style="font-weight:bold"/>
+                            <p:outputLabel id="txtnomMalla" value="#{cargaHorariaControlador.malla.nomMalla}"/>
+                        </h:panelGroup>
+
+                        <p:panelGrid columns="2">
+                            <p:commandButton id="botonMateria" value="Agregar Materias" oncomplete="PF('dialogoMaterias').show()" disabled="#{cargaHorariaControlador.estadoBoton}"> </p:commandButton>
+
+                        </p:panelGrid>
+                        <h:panelGroup>
+                            <p:outputLabel value="Materia: " style="font-weight: bold"/>
+                            <p:outputLabel id="txtmateria" value="#{cargaHorariaControlador.materia.nomMateria}" />
+                        </h:panelGroup>
+                        <p:outputLabel value="Número de Paralelos"/>
+                        <p:inputText id="txtparalelos" value="#{cargaHorariaControlador.docentesMallaContratoMateria.numParaleslos}"/>
+
+                        <p:outputLabel value="Número de Horas" for="txthoras"/>
+                        <p:inputText id="txthoras" value="#{cargaHorariaControlador.docentesMallaContratoMateria.numHorasAsignatura}">
+                            <p:message for="txthoras"/>
+                        </p:inputText>
+                        <p:outputLabel  value="Número de Estudiantes"/>
+                        <p:inputText  id="txtnumestu" value="#{cargaHorariaControlador.docentesMallaContratoMateria.numEstudiantes}"/>
+                        <p:outputLabel id="txtobs" value="OBSERVACIONES:" style="font-weight:bold"/>
+                        <p:inputTextarea rows="5" cols="30"  maxlength="200" counterTemplate="{0}  maximo de carateres." autoResize="false"  value="#{cargaHorariaControlador.docentesMallaContratoMateria.obsDocMatMalla}"/>
+                    </p:panelGrid>
+                    <p:commandButton value="Actualizar" actionListener="#{cargaHorariaControlador.actualizar()}"  update="gridActualizar :formcargaDocente:tablaCargaDocente :formcargaDocente:txtNumHorasTotales" icon="ui-icon-pencil"/>
+                    <p:commandButton value="Cerrar" update="gridActualizar" process="@this" actionListener="#{cargaHorariaControlador.cerrar()}" oncomplete="PF('dialogoCargaAc').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridActualizar" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+
+            <!-- lista cargaHoraria por docente-->
+            <h:form id="formcargaDocente">
+                <p:dataTable  widgetVar="BUSCAR4" id="tablaCargaDocente" value="#{cargaHorariaControlador.listaCargaporDocente(selecionPeriodo.idPeriodo)}" var="cargaDocenteItem" paginator="true" rows="5"
+                              paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                              rowsPerPageTemplate="5,10,15,50">
+                    <f:facet name="header">
+                        <p:outputPanel>
+                            <h:outputText value="Buscar carga" />
+                            <p:inputText id="globalFilter" onkeyup="PF('BUSCAR4').filter()" style="width:150px" placeholder=""/>
+                        </p:outputPanel>
+                    </f:facet>                            
+                    <p:column headerText="NÚMERO DOCUMENTO:" filterBy="#{cargaDocenteItem.idReLaboral.numDocumento}">
+                        <h:outputText value="#{cargaDocenteItem.idReLaboral.numDocumento}"/>
+                    </p:column>
+                    <p:column headerText="NOMBRE MALLA:" filterBy="#{cargaDocenteItem.idMateria.idMalla.nomMalla}">
+                        <h:outputText value="#{cargaDocenteItem.idMateria.idMalla.nomMalla}"/>
+                    </p:column>
+                    <p:column headerText="ACTIVIDAD" filterBy="#{cargaDocenteItem.idActivida.nomActividad}">
+                        <h:outputText value="#{cargaDocenteItem.idActivida.nomActividad}"/>
+                    </p:column>
+                    <p:column headerText="MATERIA" filterBy="#{cargaDocenteItem.idMateria.nomMateria}">
+                        <h:outputText value="#{cargaDocenteItem.idMateria.nomMateria}"/>
+                    </p:column>
+                    <p:column headerText="SEMESTRE" filterBy="#{cargaDocenteItem.idMateria.semestre}">
+                        <h:outputText value="#{cargaDocenteItem.idMateria.semestre}"/>
+                    </p:column>
+                    <p:column headerText="NÚMERO DE HORAS" filterBy="#{cargaDocenteItem.numHorasAsignatura}">
+                        <h:outputText value="#{cargaDocenteItem.numHorasAsignatura}"/>
+                    </p:column>
+                    <p:column headerText="ACCIONES">
+                        <p:commandButton  actionListener="#{cargaHorariaControlador.buscarCargaporID(cargaDocenteItem.idDocenteMateriaMalla)}" oncomplete="PF('dialogoCargaVER').show()" update=":dldatosVER" icon="ui-icon-search"  /> 
+
+                        <p:commandButton  actionListener="#{cargaHorariaControlador.buscarCargaporID(cargaDocenteItem.idDocenteMateriaMalla)}" oncomplete="PF('dialogoCargaAc').show()" update=":dldatos" icon="ui-icon-pencil"  >                        
+                        </p:commandButton>  
+                        <p:commandButton actionListener="#{cargaHorariaControlador.eliminar(cargaDocenteItem)}" update=":formcargaDocente:tablaCargaDocente :formcargaDocente:txtNumHorasTotales" icon="ui-icon-circle-close">
+                            <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                        </p:commandButton>
+                    </p:column>
+
+
+
+                </p:dataTable>
+                <p:outputLabel value="Número de Horas Totales:" style="font-weight:bold"/>
+                <p:outputLabel id="txtNumHorasTotales" value="#{cargaHorariaControlador.numeroHorasTotales}"/>
+            </h:form>
+            <!-- DIALOGO CONTRATO-->
+            <p:dialog widgetVar="dialogoContrato">
+                <h:form id="frmcontrato" >
+                    <p:dataTable  widgetVar="BUSCAR1" id="tablaContrato" value="#{cargaHorariaControlador.listaContratosDocente(selecionPeriodo.idPeriodo)}" var="contratoItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Contrato" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR1').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>                            
+                        <p:column headerText="NÚMERO CONTRATO:" filterBy="#{contratoItem.numDocumento}">
+                            <h:outputText value="#{contratoItem.numDocumento}"/>
+                        </p:column>
+                        <p:column headerText="FECHA INICIO" filterBy="#{contratoItem.fechaInicioContrato}">
+                            <h:outputText value="#{contratoItem.fechaInicioContrato}">
+                                <f:convertDateTime pattern="dd-MMM-yyyy" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="FECHA FIN" filterBy="#{contratoItem.fechaFinContrato}">
+                            <h:outputText value="#{contratoItem.fechaFinContrato}">
+                                <f:convertDateTime pattern="dd-MMM-yyyy" />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="Accion">
+                            <p:commandButton value="SELECCIONAR" actionListener="#{cargaHorariaControlador.recuperardatosContratoID(contratoItem.idReLaboral)}"  update=":frmSeleccionarContrato:novcontrato :formcargaDocente:tablaCargaDocente :formcargaDocente:txtNumHorasTotales" oncomplete="PF('dialogoContrato').hide()" />
+                        </p:column>    
+
+                    </p:dataTable>
+                </h:form>
+            </p:dialog>
+            <p:separator/>
+
+
+            <!-- DIALOGO MALLAS-->
+            <p:dialog widgetVar="dialogoMalla">
+                <h:form >
+                    <p:dataTable  widgetVar="BUSCAR2" id="tablaMalla" value="#{cargaHorariaControlador.recuperarMallas()}" var="mallaItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Malla" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR2').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>                            
+                        <p:column headerText="CÓDIGO:" filterBy="#{mallaItem.codMalla}">
+                            <h:outputText value="#{mallaItem.codMalla}"/>
+                        </p:column>
+                        <p:column headerText="NOMBRE" filterBy="#{mallaItem.nomMalla}">
+                            <h:outputText value="#{mallaItem.nomMalla}"/>
+                        </p:column>
+
+                        <p:column headerText="FECHA INICIO" filterBy="#{mallaItem.fechaIniMalla}">
+                            <h:outputText value="#{mallaItem.fechaIniMalla}">
+                                <f:convertDateTime pattern="dd-MMM-yyyy" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="FECHA FIN" filterBy="#{mallaItem.fechaFinMalla}">
+                            <h:outputText value="#{mallaItem.fechaFinMalla}">
+                                <f:convertDateTime pattern="dd-MMM-yyyy" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="CARRERA" filterBy="#{mallaItem.idCarrera.nomCarrera}">
+                            <h:outputText value="#{mallaItem.idCarrera.nomCarrera}"/>
+                        </p:column>
+                        <p:column>
+                            <p:commandButton value="SELECCIONAR"  actionListener="#{cargaHorariaControlador.encontrarMallaID(mallaItem.idMalla)}" update=":frmperiodo:txtnomMalla :formmateria:tablamateria " oncomplete="PF('dialogoMalla').hide()" />
+                        </p:column>    
+                    </p:dataTable>
+                </h:form>
+            </p:dialog>
+
+            <!-- DIALOGO MATERIAS-->
+            <p:dialog widgetVar="dialogoMaterias" >
+                <h:form id="formmateria" style= "width: 530px">
+                    <p:panel header="MATERIAS">
+                        <p:dataTable  widgetVar="BUSCAR3" id="tablamateria" value="#{cargaHorariaControlador.listarMateriaporMalla()}" var="materiaItem" paginator="true" rows="5"
+                                      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                      rowsPerPageTemplate="5,10,15,50">
+
+                            <p:column headerText="CÓDIGO MATERIA" filterBy="#{materiaItem.codMateria}">
+                                <h:outputText value="#{materiaItem.codMateria}"/>
+                            </p:column>
+                            <p:column headerText="NOMBRE MATERIA " filterBy="#{materiaItem.nomMateria}">
+                                <h:outputText value="#{materiaItem.nomMateria}"/>
+                            </p:column>  
+                            <p:column headerText="SEMESTRE: " filterBy="#{materiaItem.semestre}">
+                                <h:outputText value="#{materiaItem.semestre}"  />
+                            </p:column>    
+                            <p:column headerText="Acciones" >
+
+                                <p:commandButton value="SELECCIONAR" actionListener="#{cargaHorariaControlador.encontrarMateriaID(materiaItem.idMateria)}"  update=":agre:txtmateria :dialogoactu:txtmateria" oncomplete="PF('dialogoMaterias').hide()" />
+                            </p:column> 
+                        </p:dataTable>
+
+                    </p:panel>
+                </h:form>
+            </p:dialog>
+            <p:dialog header="Ver Datos Carga Horaria" widgetVar="dialogoCargaVER" id="dldatosVER" closable="false">
+                <h:form>
+                    <p:panelGrid   id="gridVer" columns="4">
+                        <p:outputLabel value="NÚmero de Contrato" style="font-weight:bold"/>                         
+                        <p:outputLabel value="#{cargaHorariaControlador.docentesMallaContratoMateria.idReLaboral.numDocumento}"/>
+                        <p:outputLabel value="Nombre de la malla" style="font-weight:bold"/>
+                        <p:outputLabel value="#{cargaHorariaControlador.docentesMallaContratoMateria.idMateria.idMalla.nomMalla}"/>
+                        <p:outputLabel value="Tipo de Actividad:"/>
+                        <p:outputLabel value="#{cargaHorariaControlador.docentesMallaContratoMateria.idActivida.nomActividad}" />
+                        <p:outputLabel value="Materia"/>
+                        <p:outputLabel value="#{cargaHorariaControlador.docentesMallaContratoMateria.idMateria.nomMateria}" />
+                        <p:outputLabel value="Número de Paralelos"/>
+                        <p:outputLabel  value="#{cargaHorariaControlador.docentesMallaContratoMateria.numParaleslos}"/>
+                        <p:outputLabel value="Número de Horas"/>
+                        <p:outputLabel value="#{cargaHorariaControlador.docentesMallaContratoMateria.numHorasAsignatura}"/>
+                        <p:outputLabel  value="Número de Estudiantes"/>
+                        <p:outputLabel  value="#{cargaHorariaControlador.docentesMallaContratoMateria.numEstudiantes}"/>
+                        <p:outputLabel value="Observaciones:" style="font-weight:bold"/>
+                        <p:outputLabel  value="#{cargaHorariaControlador.docentesMallaContratoMateria.obsDocMatMalla}"/>
+
+                    </p:panelGrid>
+                    <p:commandButton value="Cerrar" update="gridVer" process="@this" actionListener="#{cargaHorariaControlador.cerrar()}" oncomplete="PF('dialogoCargaVER').hide()" icon="ui-icon-closethick" >
+                        <p:resetInput target="gridVer" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+
+
+
+        </ui:define>
+
+    </ui:composition>
+</html>

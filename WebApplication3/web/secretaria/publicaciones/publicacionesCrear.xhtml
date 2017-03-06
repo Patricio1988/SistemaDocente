@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition template="/Templates/Plantilla.xhtml">
+
+        <ui:define name="content">
+
+            <!-- TABLA DOCENTES-->
+            <p:panel>
+                <div style="text-align: center">
+                    <p:outputLabel value="Publicaciones Del Docente" style="font-size: 15pt; font-weight: bold "/> 
+                </div>
+                <h:form id="form1">               
+                    <p:dataTable  widgetVar="BUSCAR" id="tabladocente1" value="#{carreraDocenteControlador.listarDocenteCarreraVigentes(datosControlador.usuario.authorities,selecionPeriodo.idPeriodo)}" var="docenteItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Docente" />
+                                <p:inputText id="globalFilter" onkeyup="PF('BUSCAR').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>                            
+                       <p:column headerText="CARRERA:" filterBy="#{docenteItem.idCarrera.nomCarrera}">
+                            <h:outputText value="#{docenteItem.idCarrera.nomCarrera}"/>
+                        </p:column>
+                        <p:column headerText="PRIMER APELLIDO" filterBy="#{docenteItem.idDocente.apellidoPaterno}">
+                            <h:outputText value="#{docenteItem.idDocente.apellidoPaterno}"/>
+                        </p:column>
+                        <p:column headerText="SEGUNDO APELLIDO" filterBy="#{docenteItem.idDocente.apellidoMaterno}">
+                            <h:outputText value="#{docenteItem.idDocente.apellidoMaterno}"/>
+                        </p:column>
+                        <p:column headerText="NOMBRES" filterBy="#{docenteItem.idDocente.nombres}">
+                            <h:outputText value="#{docenteItem.idDocente.nombres}"/>
+                        </p:column>
+                        <p:column headerText="IDENTIFICACIÓN" filterBy="#{docenteItem.idDocente.identificacion}">
+                            <h:outputText value="#{docenteItem.idDocente.identificacion}"/>
+                        </p:column>
+                        <p:column>
+                            <p:commandButton value="SELECCIONAR" action="#{publicacionesControlador.recuperarDatosCarreraDocenteId(docenteItem.idCarreraDocente)}"   update=":form1:datosdocente1 :frmtablaPublicacion:tablaPublicaciones" />
+
+                        </p:column>    
+
+                    </p:dataTable>
+                    <!-- TABLA  DATOS DOCENTE-->
+                    <p:panelGrid columns="6" id="datosdocente1" >
+                        <f:facet name="header">
+                            Datos Docente Seleccionado
+                        </f:facet>
+                        <p:outputLabel value="NOMBRES:" style="font-weight:bold"/>
+                        <p:outputLabel id="apepater" value="#{publicacionesControlador.carreraDocente.idDocente.apellidoPaterno} #{publicacionesControlador.carreraDocente.idDocente.apellidoMaterno} #{publicacionesControlador.carreraDocente.idDocente.nombres}" > </p:outputLabel>                  
+                        <p:outputLabel value="IDENTIFICACIÓN:" style="font-weight:bold"/>
+                        <p:outputLabel id="identifi" value="#{publicacionesControlador.numeroCedula}"/>
+                        <p:outputLabel value="Carrera" style="font-weight:bold"/>
+                        <p:outputLabel id="idCarrera" value="#{publicacionesControlador.carreraDocente.idCarrera.nomCarrera}"/>
+                    </p:panelGrid>
+                </h:form>
+            </p:panel>
+
+
+            <p:panel header="Publicaciones del Docente">
+                <!-- TABLA CARGO DIRECTIVO-->
+                <h:form>
+
+                    <p:commandButton value="Nuevo" action="#{publicacionesControlador.abrirDialogo()}"/>
+                </h:form>
+                <h:form id="frmtablaPublicacion">
+                    <p:dataTable  widgetVar="BUSCAR CURSO" id="tablaPublicaciones" value="#{publicacionesControlador.listaPublicacionesDocente()}" var="publicacionesItem" paginator="true" rows="5"
+                                  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                  rowsPerPageTemplate="5,10,15,50">
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar Publicación" />
+                                <p:inputText id="globalFilter1" onkeyup="PF('BUSCAR CURSO').filter()" style="width:150px" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>                            
+
+                        <p:column headerText="TIPO DE PUBLICACIÓN:" filterBy="#{publicacionesItem.idTipoPublicacion.nomTipoPublicacion}">
+                            <h:outputText value="#{publicacionesItem.idTipoPublicacion.nomTipoPublicacion}"/>
+                        </p:column>
+                        <p:column headerText="CÓDIGO PUBLICACIÓN:" filterBy="#{publicacionesItem.codPublicacion}">
+                            <h:outputText value="#{publicacionesItem.codPublicacion}"/>
+                        </p:column>
+                        <p:column headerText="NOMBRE PUBLICACIÓN" filterBy="#{publicacionesItem.nomPublicacion}">
+                            <h:outputText value="#{publicacionesItem.nomPublicacion}"/>
+                        </p:column>
+                        <p:column headerText="NÚMERO ISBN/ISSN" filterBy="#{publicacionesItem.numIsbnIssn}">
+                            <h:outputText value="#{publicacionesItem.numIsbnIssn}"/>
+                        </p:column>
+                        <p:column headerText="FECHA DE PUBLICACIÓN" filterBy="#{publicacionesItem.fechaPublicacion}">
+                            <h:outputText value="#{publicacionesItem.fechaPublicacion}">
+                                <f:convertDateTime pattern="dd-MMM-yyyy" /> 
+                            </h:outputText>
+                        </p:column>    
+                        <p:column headerText="ACCIONES" >
+                            <p:commandButton action="#{publicacionesControlador.recuperarPublicacionID(publicacionesItem.idPublicacion)}" update=":dialogoPublicacionesVer" oncomplete="PF('dialogoDatosVer').show()" icon="ui-icon-search" title="Ver"/>
+                            <p:commandButton action="#{publicacionesControlador.recuperarPublicacionID(publicacionesItem.idPublicacion)}" update=":dialogoPublicacionesActualizar" oncomplete="PF('dialogoDatosActualizar').show()" icon="ui-icon-pencil" title="Actualizar"/>
+                            <p:commandButton actionListener="#{publicacionesControlador.eliminar(publicacionesItem)}" update=":frmtablaPublicacion:tablaPublicaciones" icon="ui-icon-circle-close">
+                                <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-alert" />
+                            </p:commandButton>
+                         </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+            <!-- DIALOGO AGREGAR-->
+
+            <p:dialog id="dialogoCargoAgregar" header="Agregar Datos Publicación" widgetVar="dialogoPublicacionesAgregar" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+                <h:form enctype="multipart/form-data">
+                    <p:panelGrid id="panelPublicaciones" columns="4">
+                        <p:outputLabel value="TIPO DE PUBLICACIÓN:" style="font-weight: bold" for="selectTipoPubli"/>
+                        <h:panelGroup>
+                            <p:message for="selectTipoPubli"/>
+                            <p:selectOneMenu id="selectTipoPubli" value="#{publicacionesControlador.idtipopublicacion}" required="true" requiredMessage="Seleccione un Tipo de Publicación">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                <f:selectItems value="#{tipoPublicacionControlador.recuperarTodos()}" var="itemsTppublicacion" itemLabel="#{itemsTppublicacion.nomTipoPublicacion}" itemValue="#{itemsTppublicacion.idTipoPublicacion}">
+                                </f:selectItems>   
+                                <p:ajax event="change" listener="#{publicacionesControlador.habilitarRevista}" update="nomrev,reindex,basein"  />
+                            </p:selectOneMenu>                           
+                        </h:panelGroup>
+                        <p:outputLabel value="CÓDIGO PUBLICACIÓN:" style="font-weight: bold" for="codigopublicaciones"/>
+                        <p:inputText id="codigopublicaciones" value="#{publicacionesControlador.publicaciones.codPublicacion}">
+                            <p:message for="codigopublicaciones"/>
+                        </p:inputText>
+                        <p:outputLabel value="FILIACIÓN:" style="font-weight: bold"/>
+                        <p:selectBooleanCheckbox value="#{publicacionesControlador.publicaciones.filiacion}" />   
+                        <p:outputLabel value="ÁREA DE CONOCIMIENTO:" style="font-weight: bold"/>
+                        <p:inputText id="area" value="#{publicacionesControlador.publicaciones.areaConocimiento}"/>
+                        <p:outputLabel value="SUBÁREA DE CONOCIMIENTO:" style="font-weight: bold"/>
+                        <p:inputText id="subarea" value="#{publicacionesControlador.publicaciones.subareaConocimiento}"/>
+                        <p:outputLabel value="SUBÁREA ESPECÍFICA DE CONOCIMIENTO:" style="font-weight: bold"/>
+                        <p:inputText id="subaareaespe" value="#{publicacionesControlador.publicaciones.subareaEspeConocimiento}"/>
+                        <p:outputLabel value="NOMBRE PUBLICACIÓN:" style="font-weight: bold" for="nompubli"/>
+                        <p:inputText id="nompubli" value="#{publicacionesControlador.publicaciones.nomPublicacion}">
+                            <p:message for="nompubli"/>
+                        </p:inputText>
+
+                        <p:outputLabel value="FECHA DE PUBLICACIÓN:" style="font-weight: bold" for="fechapublicaciones"/>
+                        <h:panelGroup>
+                            <p:message for="fechapublicaciones"/>
+                            <p:calendar id="fechapublicaciones" value="#{publicacionesControlador.publicaciones.fechaPublicacion}"  navigator="true" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" />                           
+                        </h:panelGroup>
+                        <p:outputLabel value="PARTICIPACÓN:"  style="font-weight: bold" for="selectparticipacion"/>
+                        <h:panelGroup>
+                            <p:message for="selectparticipacion"/>
+                            <p:selectOneMenu id="selectparticipacion" value="#{publicacionesControlador.publicaciones.participacion}">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                <f:selectItems value="#{publicacionesControlador.tiposParticipacion}" />
+                            </p:selectOneMenu>
+
+                        </h:panelGroup>
+                        <p:outputLabel value="REVISIÓN POR PARES:" style="font-weight: bold"/>
+                        <p:selectBooleanCheckbox value="#{publicacionesControlador.publicaciones.revisonPares}" /> 
+                        <p:outputLabel value="NÚMERO ISBN/ISSN:" style="font-weight: bold" for="nunissn" />
+                        <p:inputText id="nunissn" value="#{publicacionesControlador.publicaciones.numIsbnIssn}">
+                            <p:message for="nunissn"/>
+                        </p:inputText>
+                        <p:outputLabel value="ESTADO DE PUBLICACIÓN:" style="font-weight: bold" for="selectestadopubli"/>
+                        <h:panelGroup>
+                            <p:message for="selectestadopubli"/>
+                            <p:selectOneMenu id="selectestadopubli" value="#{publicacionesControlador.publicaciones.estadoPublicacion}" >
+                                <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                <f:selectItems value="#{publicacionesControlador.tiposEstadoPublicacion}" />
+                            </p:selectOneMenu>
+
+                        </h:panelGroup>
+                        <p:outputLabel value="NOMBRE REVISTA:" style="font-weight: bold"/>
+                        <p:inputText id="nomrev" value="#{publicacionesControlador.publicaciones.nombreRevista}" disabled="#{publicacionesControlador.estadoOpcionesRevista}" />
+                        <p:outputLabel  value="REVISTA INDEXADA:" style="font-weight: bold"/>
+                        <p:selectBooleanCheckbox id="reindex" value="#{publicacionesControlador.publicaciones.revistaIndexada}" disabled="#{publicacionesControlador.estadoOpcionesRevista}" /> 
+                        <p:outputLabel value="NOMBRE BASE INDEXADA:" style="font-weight: bold"/>
+                        <p:selectOneMenu id="basein" value="#{publicacionesControlador.publicaciones.nomBaseIndexada}" disabled="#{publicacionesControlador.estadoOpcionesRevista}">
+                            <f:selectItem itemLabel="Selecione Uno" itemValue=" " />
+                            <f:selectItems value="#{publicacionesControlador.tiposBaseDatosRevista}" />
+                        </p:selectOneMenu>                    
+                        <p:outputLabel value="OBSERVACIONES:" style="font-weight: bold"/>
+                        <p:inputTextarea rows="5" cols="30"  maxlength="200" counterTemplate="{0}  maximo de carateres." autoResize="false"  value="#{publicacionesControlador.publicaciones.obsPublicaciones}"/>
+                    </p:panelGrid>
+                    <p:commandButton   value="Agregar" id="agregarcargo"  actionListener="#{publicacionesControlador.crear()}" update="panelPublicaciones :frmtablaPublicacion:tablaPublicaciones"  icon="ui-icon-disk" />
+                    <p:commandButton value="Cerrar" update="panelPublicaciones" process="@this" actionListener="#{publicacionesControlador.cerrar()}" oncomplete="PF('dialogoPublicacionesAgregar').hide();" icon="ui-icon-closethick" >
+                        <p:resetInput target="panelPublicaciones" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+
+            <!-- DIALOGO ACTUALIZAR-->
+
+            <p:dialog id="dialogoPublicacionesActualizar" header="Actualizar Datos Publicación " widgetVar="dialogoDatosActualizar" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+
+                <h:form enctype="multipart/form-data">
+                 
+                        <p:panelGrid  columns="4" id="gridActualizar">
+                            <p:outputLabel value="TIPO DE PUBLICACIÓN:" style="font-weight: bold" for="selectTipoPubli"/>
+                            <h:panelGroup>
+                                <p:message for="selectTipoPubli"/>
+                                <p:selectOneMenu id="selectTipoPubli" value="#{publicacionesControlador.idtipopublicacion}" required="true" requiredMessage="Seleccione un Tipo de Publicacion">
+                                    <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                      <f:selectItems value="#{tipoPublicacionControlador.recuperarTodos()}" var="itemsTppublicacion" itemLabel="#{itemsTppublicacion.nomTipoPublicacion}" itemValue="#{itemsTppublicacion.idTipoPublicacion}">
+                                    </f:selectItems>   
+                                    <p:ajax event="change" listener="#{publicacionesControlador.habilitarRevista}" update="nomrev,reindex,basein"  />
+                                </p:selectOneMenu>
+
+                            </h:panelGroup>
+                            <p:outputLabel value="CÓDIGO PUBLICACIÓN:" style="font-weight: bold" for="codigopublicaciones"/>
+                            <p:inputText id="codigopublicaciones" value="#{publicacionesControlador.publicaciones.codPublicacion}">
+                                <p:message for="codigopublicaciones"/>
+                            </p:inputText>
+                            <p:outputLabel value="FILIACIÓN:" style="font-weight: bold"/>
+                            <p:selectBooleanCheckbox value="#{publicacionesControlador.publicaciones.filiacion}" />   
+                            <p:outputLabel value="ÁREA DE CONOCIMIENTO:" style="font-weight: bold"/>
+                            <p:inputText id="area" value="#{publicacionesControlador.publicaciones.areaConocimiento}"/>
+                            <p:outputLabel value="SUBÁREA DE CONOCIMIENTO:" style="font-weight: bold"/>
+                            <p:inputText id="subarea" value="#{publicacionesControlador.publicaciones.subareaConocimiento}"/>
+                            <p:outputLabel value="SUBÁREA ESPECÍFICA DE CONOCIMIENTO:" style="font-weight: bold"/>
+                            <p:inputText id="subaareaespe" value="#{publicacionesControlador.publicaciones.subareaEspeConocimiento}"/>
+                            <p:outputLabel value="NOMBRE PUBLICACIÓN:" style="font-weight: bold" for="nompubli"/>
+                            <p:inputText id="nompubli" value="#{publicacionesControlador.publicaciones.nomPublicacion}">
+                                <p:message for="nompubli"/>
+                            </p:inputText>
+
+                            <p:outputLabel value="FECHA DE PUBLICACIÓN:" style="font-weight: bold"/>
+                            <h:panelGroup>
+                                <p:message for="fechapublicaciones"/>
+                                <p:calendar id="fechapublicaciones" value="#{publicacionesControlador.publicaciones.fechaPublicacion}" showOn="button" title="Ejemplo: dd-mm-yyyy"  pattern="dd-MM-yyyy" />
+
+                            </h:panelGroup>
+                            <p:outputLabel value="PARTICIPACÓN:"  style="font-weight: bold"/>
+                            <h:panelGroup>
+                                <p:message for="selectparticipacio"/>
+                                <p:selectOneMenu id="selectparticipacio" value="#{publicacionesControlador.publicaciones.participacion}" >
+                                    <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                    <f:selectItems value="#{publicacionesControlador.tiposParticipacion}" />
+                                </p:selectOneMenu>
+
+                            </h:panelGroup>
+                            <p:outputLabel value="REVISIÓN POR PARES:" style="font-weight: bold"/>
+                            <p:selectBooleanCheckbox value="#{publicacionesControlador.publicaciones.revisonPares}" /> 
+                            <p:outputLabel value="NÚMERO ISBN/ISSN:" style="font-weight: bold" for="nunissn" />
+                            <p:inputText id="nunissn" value="#{publicacionesControlador.publicaciones.numIsbnIssn}">
+                                <p:message for="nunissn"/>                            
+                            </p:inputText>
+                            <p:outputLabel value="ESTADO DE PUBLICACIÓN:" style="font-weight: bold"/>
+                            <h:panelGroup>
+                                <p:message for="selectestadopubli"/>
+                                <p:selectOneMenu id="selectestadopubli" value="#{publicacionesControlador.publicaciones.estadoPublicacion}">
+                                    <f:selectItem itemLabel="SELECCIONE" itemValue="#{null}" />
+                                    <f:selectItems value="#{publicacionesControlador.tiposEstadoPublicacion}" />
+                                </p:selectOneMenu>
+
+                            </h:panelGroup>
+                            <p:outputLabel value="NOMBRE REVISTA:" style="font-weight: bold"/>
+                            <p:inputText id="nomrev" value="#{publicacionesControlador.publicaciones.nombreRevista}" disabled="#{publicacionesControlador.estadoOpcionesRevista}" />
+                            <p:outputLabel  value="REVISTA INDEXADA:" style="font-weight: bold"/>
+                            <p:selectBooleanCheckbox id="reindex" value="#{publicacionesControlador.publicaciones.revistaIndexada}" disabled="#{publicacionesControlador.estadoOpcionesRevista}" /> 
+                            <p:outputLabel value="NOMBRE BASE INDEXADA:" style="font-weight: bold"/>
+                            <p:selectOneMenu id="basein" value="#{publicacionesControlador.publicaciones.nomBaseIndexada}" disabled="#{publicacionesControlador.estadoOpcionesRevista}">
+                                <f:selectItem itemLabel="SELECCIONE" itemValue=" " />
+                                <f:selectItems value="#{publicacionesControlador.tiposBaseDatosRevista}" />
+                            </p:selectOneMenu>    
+                
+
+                            <p:outputLabel value="OBSERVACIONES:" style="font-weight: bold"/>
+                            <p:inputTextarea rows="5" cols="30"  maxlength="200" counterTemplate="{0}  maximo de carateres." autoResize="false"  value="#{publicacionesControlador.publicaciones.obsPublicaciones}"/>
+                        </p:panelGrid>
+                        <p:commandButton  value="Actualizar" actionListener="#{publicacionesControlador.actualizar()}"  update="gridActualizar :frmtablaPublicacion:tablaPublicaciones" icon="ui-icon-pencil"/>
+                        <p:commandButton value="Cerrar" update="gridActualizar" process="@this" actionListener="#{publicacionesControlador.cerrar()}" oncomplete="PF('dialogoDatosActualizar').hide();" icon="ui-icon-closethick" >
+                            <p:resetInput target="gridActualizar" />
+                        </p:commandButton>
+            
+                </h:form>
+            </p:dialog>
+            <!-- DIALOGO VER-->
+            <p:dialog id="dialogoPublicacionesVer" header="Ver Datos Publicación" widgetVar="dialogoDatosVer" modal="true" showEffect="fade" hideEffect="fade" resizable="false" closable="false">
+
+                <h:form>
+                    <p:outputPanel id="relacionCargoDetail" style="text-align:center;">
+                        <p:panelGrid columns="2" id="gridVer">
+
+                            <p:outputLabel value="TIPO DE PUBLICACIÓN:" style="font-weight: bold"/>
+                            <p:outputLabel value="#{publicacionesControlador.publicaciones.idTipoPublicacion.nomTipoPublicacion}"/>
+
+                            <p:outputLabel value="CÓDIGO PUBLICACIÓN:" style="font-weight: bold"/>
+                            <p:outputLabel  value="#{publicacionesControlador.publicaciones.codPublicacion}"/>
+                            <p:outputLabel value="FILIACION:"/>
+                            <p:selectBooleanCheckbox value="#{publicacionesControlador.publicaciones.filiacion}" />   
+                            <p:outputLabel value="ÁREA DE CONOCIMIENTO:" style="font-weight: bold"/>
+                            <p:outputLabel  value="#{publicacionesControlador.publicaciones.areaConocimiento}"/>
+                            <p:outputLabel value="SUBÁREA DE CONOCIMIENTO:" style="font-weight: bold"/>
+                            <p:outputLabel  value="#{publicacionesControlador.publicaciones.subareaConocimiento}"/>
+                            <p:outputLabel value="SUBÁREA ESPECÍFICA DE CONOCIMIENTO:" style="font-weight: bold"/>
+                            <p:outputLabel value="#{publicacionesControlador.publicaciones.subareaEspeConocimiento}"/>
+                            <p:outputLabel value="NOMBRE PUBLICACIÓN:" style="font-weight: bold"/>
+                            <p:outputLabel  value="#{publicacionesControlador.publicaciones.nomPublicacion}"/>
+
+                            <p:outputLabel value="FECHA DE PUBLICACIÓN:" style="font-weight: bold"/>
+
+                            <p:outputLabel  value="#{publicacionesControlador.publicaciones.fechaPublicacion}"  >
+                                <f:convertDateTime pattern="yyyy-MM-dd"/>
+                            </p:outputLabel>
+                            <p:outputLabel value="PARTICIPACIÓN:" style="font-weight: bold"/>
+                            <p:outputLabel value="#{publicacionesControlador.publicaciones.participacion}"/>
+
+                            <p:outputLabel value="REVISIÓN POR PARES:" style="font-weight: bold"/>
+                            <p:selectBooleanCheckbox value="#{publicacionesControlador.publicaciones.revisonPares}" /> 
+                            <p:outputLabel value="NÚMERO ISBN/ISSN:" style="font-weight: bold"/>
+                            <p:outputLabel  value="#{publicacionesControlador.publicaciones.numIsbnIssn}"/>
+                            <p:outputLabel value="ESTADO DE PUBLICACIÓN:" style="font-weight: bold"/>
+                            <p:outputLabel value="#{publicacionesControlador.publicaciones.estadoPublicacion}"/>
+                            <p:outputLabel value="NOMBRE REVISTA:"/>
+                            <p:outputLabel value="#{publicacionesControlador.publicaciones.nombreRevista}" />
+                            <p:outputLabel value="REVISTA INDEXADA:" style="font-weight: bold"/>
+                            <p:selectBooleanCheckbox id="revindex" value="#{publicacionesControlador.publicaciones.revistaIndexada}" /> 
+                            <p:outputLabel value="NOMBRE BASE INDEXADA:" style="font-weight: bold"/>
+                            <p:outputLabel id="base" value="#{publicacionesControlador.publicaciones.nomBaseIndexada}"/> 
+                            <p:outputLabel value="NOMBRE DEL ARCHIVO:" style="font-weight: bold"/>
+                            <p:outputLabel id="nomArchivo" value="#{publicacionesControlador.publicaciones.nombreDocPublicacion}"/> 
+                            <p:outputLabel value="OBSERVACIONES:" style="font-weight: bold"/>
+                            <p:inputTextarea rows="5" cols="30"  maxlength="200" counterTemplate="{0}  maximo de carateres." autoResize="false"  value="#{publicacionesControlador.publicaciones.obsPublicaciones}"/>
+                        </p:panelGrid>
+                        <p:commandButton value="Cerrar" update="gridVer" process="@this" actionListener="#{publicacionesControlador.cerrar()}" oncomplete="PF('dialogoDatosVer').hide();" icon="ui-icon-closethick" >
+                            <p:resetInput target="gridVer" />
+                        </p:commandButton>
+                    </p:outputPanel>
+                </h:form>
+            </p:dialog>
+            <!-- DIALOGO CONFIRMAR-->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <h:form>
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </h:form>
+            </p:confirmDialog>
+        </ui:define>
+    </ui:composition>
+</html>
